@@ -43,6 +43,7 @@ async function getAdminData() {
         throw err // Re-throw the error to be handled by the caller
     }
 }
+
 // Admin Verification Route, checks for Token Authorization and redirects
 // to a secure address 
 app.get('/admin/verification', TokenAuthorization, (req, res) => {
@@ -54,6 +55,7 @@ app.get('/admin/verification', TokenAuthorization, (req, res) => {
 
         // Redirects to a newly Generated URL
         res.redirect(`/admin/dashboard/${redirectURL}`)
+    
         console.log(`${req.decode.username} has logged In!`)
         
     }
@@ -62,8 +64,8 @@ app.get('/admin/verification', TokenAuthorization, (req, res) => {
 // Handles the routes after successful verifications
 app.get('/admin/dashboard/:id', TokenAuthorization, (req, res) => {
 
-    // Functionality to be performed!!
-    res.send("Hello World")
+    // Functionality to be performed!
+
 }) 
 
 function CaptureToken(req) {
@@ -115,17 +117,12 @@ async function userAuthentication(req, res, next) {
     try {
         const { username, password } = await getAdminData()
 
-        // Hash the retrieved username and password
-        const hashedPassword = await bcrypt.hash(password, 10)
-        const hashedUsername = await bcrypt.hash(username, 10)
-
         // Retrieve user and pass from the request body
         const { user, pass } = req.body;
 
         // Compare the hashed values with the input
-        const isPasswordValid = bcrypt.compareSync(pass, hashedPassword)
-        const isUsernameValid = bcrypt.compareSync(user, hashedUsername)
-
+        const isPasswordValid = bcrypt.compareSync(pass, password)
+        const isUsernameValid = username === user
         // If both username and password are valid, proceed to the next middleware
         if (isPasswordValid && isUsernameValid) {
             next()
