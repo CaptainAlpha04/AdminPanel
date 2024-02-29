@@ -46,16 +46,23 @@ async function getAdminData() {
 // Admin Verification Route, checks for Token Authorization and redirects
 // to a secure address 
 app.get('/admin/verification', TokenAuthorization, (req, res) => {
-    if(req.decode.isAuthenticated) {
 
+    // Verifies the authentication Token Flag
+    if(req.decode.isAuthenticated) {
+        
         const redirectURL = req.decode.exp + req.decode.iat
+
+        // Redirects to a newly Generated URL
         res.redirect(`/admin/dashboard/${redirectURL}`)
         console.log(`${req.decode.username} has logged In!`)
         
     }
 })
 
+// Handles the routes after successful verifications
 app.get('/admin/dashboard/:id', TokenAuthorization, (req, res) => {
+
+    // Functionality to be performed!!
     res.send("Hello World")
 }) 
 
