@@ -45,14 +45,17 @@ async function getAdminData() {
 }
 
 app.get('/admin/verification', TokenAuthorization, (req, res) => {
-    if(TokenAuthorization.isAuthenticated) {
-        res.redirect(`/admin/dashboard/:${bcrypt.hash(tokenAuthorization.username)}`)
+    if(req.decode.isAuthenticated) {
+        res.redirect(`/admin/dashboard/:${req.decode.exp}`)
+        console.log(req.decode.exp)
+        console.log(`${req.decode.username} has logged In!`)
+        
     }
 })
 
-app.get('/admin/dashboard/:id', (req, res)=> {
-    
-})
+app.get('/admin/dashboard/:id', TokenAuthorization, (req, res) => {
+    res.send("Hello World")
+}) 
 
 function CaptureToken(req) {
     if (req.headers.authorization){
@@ -74,11 +77,11 @@ try {
           return err
         } else {
           // Token is valid, proceed with the request
-          console.log(decoded)
+          req.decode = decoded
           next() // Allow request to proceed
-          return decoded
         }
-      });
+      })
+
 } catch (err) {
     console.log(err)
 }   
