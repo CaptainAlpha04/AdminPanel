@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import Admin from './mongooseSchema.mjs'
+import cookieParser, { signedCookies } from 'cookie-parser'
 
 // Load environment variables from .env file
 dotenv.config()
@@ -65,7 +66,7 @@ app.get('/admin/verification', TokenAuthorization, (req, res) => {
 app.get('/admin/dashboard/:id', TokenAuthorization, (req, res) => {
 
     // Functionality to be performed!
-
+    
 }) 
 
 function CaptureToken(req) {
@@ -105,12 +106,14 @@ app.post('/admin', userAuthentication, async (req, res) => {
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
         // Respond with the token
-        res.json({ accessToken })
+        res.send({headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        }})
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Internal server error' })
     }
-});
+})
 
 // Middleware to authenticate users
 async function userAuthentication(req, res, next) {
@@ -128,10 +131,10 @@ async function userAuthentication(req, res, next) {
             next()
         } else {
             // If either username or password is invalid, send accessToken revoked message
-            return res.send({ accessToken: 'revoked' })
+            return res.sendStatus(401)
         }
     } catch (err) {
-        console.log(err);
+        console.log(err)
         // Handle errors appropriately
         res.status(500).send({ error: 'Internal server error' })
     }
@@ -140,4 +143,4 @@ async function userAuthentication(req, res, next) {
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-});
+})
