@@ -4,8 +4,16 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Admin from '../MongooseSchemas/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
+
 
 export default (app) => {
+
+// Middleware for CORS
+app.use(cors({
+    origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
+    credentials: true // Allow sending cookies with CORS requests
+}))
 
 app.use(express.json()) // Parse JSON bodies
 app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
@@ -47,7 +55,7 @@ function CaptureToken(req) {
         const token = req.headers.authorization.split(' ')[1]
         return token
 } else {
-    console.log("No Token Received")
+    res.status(301)
 }
 }
 
@@ -79,11 +87,12 @@ app.post('/admin', userAuthentication, async (req, res) => {
         const {username} = await getAdminData()
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
-        // Respond with the token
-        res.cookie("token", accessToken, {
-            secure: true,
-            httpOnly: true,
+        // Respond with the cookie
+        await res.cookie("token", accessToken, {
+             secure: true,
+             httpOnly: true,
         })
+        res.send({token: Math.random()})
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Internal server error' })
@@ -106,7 +115,7 @@ async function userAuthentication(req, res, next) {
             next()
         } else {
             // If either username or password is invalid, send accessToken revoked message
-            return res.sendStatus(401)
+            res.status(201)
         }
     } catch (err) {
         console.log(err)
