@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Admin from '../MongooseSchemas/adminSchema.mjs'
+import cookieParser from 'cookie-parser'
 
 export default (app) => {
 
@@ -67,6 +68,7 @@ try {
       })
 
 } catch (err) {
+    res.clearCookie("token")
     console.log(err)
 }   
 }
@@ -78,9 +80,10 @@ app.post('/admin', userAuthentication, async (req, res) => {
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
         // Respond with the token
-        res.send({headers: {
-            'Authorization': `Bearer ${accessToken}`,
-        }})
+        res.cookie("token", accessToken, {
+            secure: true,
+            httpOnly: true,
+        })
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Internal server error' })
