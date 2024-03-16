@@ -2,24 +2,12 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import Admin from '../MongooseSchemas/adminSchema.mjs'
+import Admin from '../MongooseSchemas/secAdminSchema.mjs'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
-
-export default (app) => {
-
-// Middleware for CORS
-app.use(cors({
-    origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
-    credentials: true // Allow sending cookies with CORS requests
-}))
-
-app.use(express.json()) // Parse JSON bodies
-app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
-    
 // Function to get admin data from the database
-async function getAdminData() {
+async function getAdminData(res) {
     try {
         const user = await Admin.findOne()
         if (!user) {
@@ -32,6 +20,18 @@ async function getAdminData() {
         throw err // Re-throw the error to be handled by the caller
     }
 }
+
+
+export default (app) => {
+
+// Middleware for CORS
+app.use(cors({
+    origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
+    credentials: true // Allow sending cookies with CORS requests
+}))
+
+app.use(express.json()) // Parse JSON bodies
+app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
 
 // Admin Verification Route, checks for Token Authorization and redirects
 // to a secure address 
@@ -76,7 +76,7 @@ try {
       })
 
 } catch (err) {
-    res.clearCookie("token")
+    //res.clearCookie("token")
     console.log(err)
 }   
 }
@@ -84,7 +84,7 @@ try {
 // Route to handle admin authorization
 app.post('/admin', userAuthentication, async (req, res) => {
     try {
-        const {username} = await getAdminData()
+        const {username} = await getAdminData(res) || "null"
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
         // Respond with the cookie
@@ -102,7 +102,7 @@ app.post('/admin', userAuthentication, async (req, res) => {
 // Middleware to authenticate users
 async function userAuthentication(req, res, next) {
     try {
-        const { username, password } = await getAdminData()
+        const { username, password } = await getAdminData(res)
 
         // Retrieve user and pass from the request body
         const { user, pass } = req.body;

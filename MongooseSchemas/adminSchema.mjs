@@ -1,22 +1,17 @@
 import mongoose from "mongoose"
 
-// schema for admin(headOffice) 
+//schema for the top level admin
 
-const headOfficeSchema = new mongoose.Schema({
-
+const adminSchema = new mongoose.Schema({
     username: String,
-    phoneNumber:Number,
-
-    email:{
+    email: {
         type: String,
         lowercase: true,
     },
-    
-    password:{
-        type: String
+    password: {
+        type: String, 
     }
-});
+})
 
-const HeadOffice = new mongoose.model('HeadOffice',headOfficeSchema)
-
-export default HeadOffice
+const Admin = mongoose.model('Admin', adminSchema)
+export default Admin
