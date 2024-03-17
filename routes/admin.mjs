@@ -2,9 +2,11 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import Admin from '../MongooseSchemas/secAdminSchema.mjs'
+import Admin from '../MongooseSchemas/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+
+export default (app) => {
 
 // Function to get admin data from the database
 async function getAdminData(res) {
@@ -21,8 +23,6 @@ async function getAdminData(res) {
     }
 }
 
-
-export default (app) => {
 
 // Middleware for CORS
 app.use(cors({
@@ -84,7 +84,7 @@ try {
 // Route to handle admin authorization
 app.post('/admin', userAuthentication, async (req, res) => {
     try {
-        const {username} = await getAdminData(res) || "null"
+        const {username} = await getAdminData(res)
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
         // Respond with the cookie
