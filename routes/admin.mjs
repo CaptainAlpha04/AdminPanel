@@ -6,6 +6,7 @@ import Admin from '../MongooseSchemas/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
+// exporting module
 export default (app) => {
 
 // Function to get admin data from the database
@@ -115,7 +116,7 @@ async function userAuthentication(req, res, next) {
             next()
         } else {
             // If either username or password is invalid, send accessToken revoked message
-            res.status(201)
+            res.status(401).send({msg: "incorrect username or password"})
         }
     } catch (err) {
         console.log(err)
