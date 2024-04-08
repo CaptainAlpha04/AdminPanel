@@ -17,7 +17,9 @@
     "nodemon": "^3.0.3"
   },
   "dependencies": {
+    "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
+    "cookies": "^0.9.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
     "mongoose": "^8.1.3"

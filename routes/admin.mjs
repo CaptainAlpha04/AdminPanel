@@ -30,26 +30,29 @@ app.use(cors({
     origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
     credentials: true // Allow sending cookies with CORS requests
 }))
-
+app.use(cookieParser())
 app.use(express.json()) // Parse JSON bodies
 app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
 
-// Admin Verification Route, checks for Token Authorization and redirects
-// to a secure address 
+// Admin Verification Route, checks for Token Authorization and responds
+// For Dashboard verification
 app.get('/admin/verification', TokenAuthorization, (req, res) => {
 
     // Verifies the authentication Token Flag
     if(req.decode.isAuthenticated) {
-        
-        const redirectURL = req.decode.exp + req.decode.iat
-
-        // Redirects to a newly Generated URL
-        res.redirect(`/admin/dashboard/${redirectURL}`)
-    
-        console.log(`${req.decode.username} has logged In!`)
-        
+        // Sends a 200 ok status
+        res.sendStatus(200);
+        return;
     }
 })
+
+// Creates a new Admin using admin schema !!experimental
+async function CreateUserAdmin() {
+    const admin = await Admin.create({
+        username: "admin",
+        password: (await bcrypt.hash("pass", 10)).toString()
+    })
+}
 
 function CaptureToken(req) {
     if (req.headers.authorization){
@@ -83,17 +86,21 @@ try {
 }
 
 // Route to handle admin authorization
-app.post('/admin', userAuthentication, async (req, res) => {
+app.post('/admin/login', userAuthentication, async (req, res) => {
     try {
         const {username} = await getAdminData(res)
         // Generate JWT token for authentication
         const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
         // Respond with the cookie
-        await res.cookie("token", accessToken, {
-             secure: true,
-             httpOnly: true,
+        res.cookie("AUTHENTICATION_TOKEN", accessToken, {
+            secure: true,
+            domain: 'localhost', 
+            sameSite: 'None',
+            expires: 900000,
+            maxAge: 900000
         })
-        res.send({token: Math.random()})
+        // sends an empty response
+        res.send({})
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Internal server error' })
@@ -110,7 +117,7 @@ async function userAuthentication(req, res, next) {
 
         // Compare the hashed values with the input
         const isPasswordValid = bcrypt.compareSync(pass, password)
-        const isUsernameValid = username === user
+        const isUsernameValid = username === user || " "
         // If both username and password are valid, proceed to the next middleware
         if (isPasswordValid && isUsernameValid) {
             next()
