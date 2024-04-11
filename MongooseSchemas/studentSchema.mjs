@@ -11,7 +11,6 @@ const studentSchema = new mongoose.Schema({
     hostelName:String,
     phoneNumber:Number,
     CNIC: Number,
-
     email:{
         type: String,
         lowercase: true,
