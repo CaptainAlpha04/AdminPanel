@@ -114,8 +114,7 @@ async function userAuthentication(req, res, next) {
         const { username, password } = await getAdminData(res)
 
         // Retrieve user and pass from the request body
-        const { user, pass } = req.body;
-
+        const { user, pass } = req.body
         // Compare the hashed values with the input
         const isPasswordValid = bcrypt.compareSync(pass, password)
         const isUsernameValid = username === user || " "
@@ -176,7 +175,7 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
-app.get('/admin/security/changeCredentials', // Break line for code clarity
+app.post('/admin/security/changeCredentials', // Break line for code clarity
 TokenAuthorization, userAuthentication, modifyCredentials, async (req, res) => {
     // All routes managed by middlewares
     // Final Success Code
