@@ -1,6 +1,5 @@
 import mongoose from "mongoose"
 
-
 // student schema
 const studentSchema = new mongoose.Schema({
     
@@ -10,6 +9,10 @@ const studentSchema = new mongoose.Schema({
     qalamId: Number,
     hostelName:String,
     phoneNumber:Number,
+    fingerprint_Id: String,
+    absentDays: Number,
+    presentDays: Number,
+    totalDays: Number,
     CNIC: Number,
     email:{
         type: String,
