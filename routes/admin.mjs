@@ -9,6 +9,13 @@ import cors from 'cors'
 // exporting module
 export default (app) => {
 
+/*
+* MiddleWares for accessing and querying mongodb
+* database, The database stores and retrieves the data
+* of the top-level admin user
+*/
+
+
 // Function to get admin data from the database
 async function getAdminData(res) {
     try {
@@ -24,28 +31,6 @@ async function getAdminData(res) {
     }
 }
 
-
-// Middleware for CORS
-app.use(cors({
-    origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
-    credentials: true // Allow sending cookies with CORS requests
-}))
-app.use(cookieParser())
-app.use(express.json()) // Parse JSON bodies
-app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
-
-// Admin Verification Route, checks for Token Authorization and responds
-// For Dashboard verification
-app.get('/admin/verification', TokenAuthorization, (req, res) => {
-
-    // Verifies the authentication Token Flag
-    if(req.decode.isAuthenticated) {
-        // Sends a 200 ok status
-        res.sendStatus(200);
-        return;
-    }
-})
-
 // Creates a new Admin using admin schema !!experimental
 async function CreateUserAdmin() {
     const admin = await Admin.create({
@@ -54,59 +39,19 @@ async function CreateUserAdmin() {
     })
 }
 
-function CaptureToken(req, res) {
-    if (req.headers.authorization){
-        const token = req.headers.authorization.split(' ')[1]
-        return token
-} else {
-    res.sendStatus(301)
-}
-}
+/* Middlewares for parsing data and CORS */
 
-async function TokenAuthorization(req, res, next) {
-//Capture the JWT token and split it for authorization 
-try {
-    const token = CaptureToken(req, res)
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-        if (err) {
-          // Handle error (e.g., invalid token, expired token)
-          res.status(401).json({ message: 'Unauthorized' })
-          return err
-        } else {
-          // Token is valid, proceed with the request
-          req.decode = decoded
-          next() // Allow request to proceed
-          return
-        }
-      })
+// Middleware for CORS
+app.use(cors({
+    origin: `http://localhost:${process.env.CLIENT_PORT}`, // Allow requests from this origin
+    credentials: true // Allow sending cookies with CORS requests
+}))
 
-} catch (err) {
-    //res.clearCookie("token")
-    console.log(err)
-}   
-}
+app.use(cookieParser()) // Cookie parser middleware
+app.use(express.json()) // Parse JSON bodies
+app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
 
-// Route to handle admin authorization
-app.post('/admin/login', userAuthentication, async (req, res) => {
-    try {
-        const {username} = await getAdminData(res)
-        // Generate JWT token for authentication
-        const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
-        // Respond with the cookie
-        res.cookie("AUTHENTICATION_TOKEN", accessToken, {
-            secure: true,
-            domain: 'localhost', 
-            sameSite: 'None',
-            expires: 900000,
-            maxAge: 900000
-        })
-        // sends an empty response
-        res.send({})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: 'Internal server error' })
-    }
-})
+/* Middlewares for Authenticating and Authorizing the users */
 
 // Middleware to authenticate users
 async function userAuthentication(req, res, next) {
@@ -133,19 +78,42 @@ async function userAuthentication(req, res, next) {
     }
 }
 
-// Route to handle logout
-app.post('/admin/logout', async (req, res) => {
-    // Clear authentication cookie by setting its expiration date to a past date
-    res.clearCookie('AUTHENTICATION_TOKEN', {
-        secure: true, // Set to true if cookie was set with 'Secure' attribute
-        httpOnly: true, // Set to true if cookie was set with 'HttpOnly' attribute
-        sameSite: 'None' // Set to 'None' if cookie was set with 'SameSite' attribute
-    })
+// Middleware to authorize the user using JWT token
+async function TokenAuthorization(req, res, next) {
+    //Capture the JWT token and split it for authorization 
+    try {
+        const token = CaptureToken(req, res)
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+            if (err) {
+              // Handle error (e.g., invalid token, expired token)
+              res.status(401).json({ message: 'Unauthorized' })
+              return err
+            } else {
+              // Token is valid, proceed with the request
+              req.decode = decoded
+              next() // Allow request to proceed
+              return
+            }
+          })
+    
+    } catch (err) {
+        //res.clearCookie("token")
+        console.log(err)
+    }   
+    }
+    
 
-    // Optionally, send a response indicating successful logout
-    res.sendStatus(200)
-})
+//function to capture Tokens sent as request
+function CaptureToken(req, res) {
+    if (req.headers.authorization){
+        const token = req.headers.authorization.split(' ')[1]
+        return token
+} else {
+    res.sendStatus(301)
+}
+}
 
+// function to modify user credentials by updating the password
 async function modifyCredentials(req, res, next) {
     try {
         const newPassword = req.body.requestedPassword;
@@ -175,6 +143,56 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
+/* Routes related to Admin User */
+
+// Admin Verification Route, checks for Token Authorization and responds
+// For Dashboard verification
+app.get('/admin/verification', TokenAuthorization, (req, res) => {
+
+    // Verifies the authentication Token Flag
+    if(req.decode.isAuthenticated) {
+        // Sends a 200 ok status
+        res.sendStatus(200);
+        return;
+    }
+})
+
+// Route to handle admin authorization
+app.post('/admin/login', userAuthentication, async (req, res) => {
+    try {
+        const {username} = await getAdminData(res)
+        // Generate JWT token for authentication
+        const accessToken = jwt.sign({username, isAuthenticated: true}, process.env.JWT_SECRET_KEY, { expiresIn: '15m' })
+        // Respond with the cookie
+        res.cookie("AUTHENTICATION_TOKEN", accessToken, {
+            secure: true,
+            domain: 'localhost', 
+            sameSite: 'None',
+            expires: 900000,
+            maxAge: 900000
+        })
+        // sends an empty response
+        res.send({})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal server error' })
+    }
+})
+
+// Route to handle logout
+app.post('/admin/logout', async (req, res) => {
+    // Clear authentication cookie by setting its expiration date to a past date
+    res.clearCookie('AUTHENTICATION_TOKEN', {
+        secure: true, // Set to true if cookie was set with 'Secure' attribute
+        httpOnly: true, // Set to true if cookie was set with 'HttpOnly' attribute
+        sameSite: 'None' // Set to 'None' if cookie was set with 'SameSite' attribute
+    })
+
+    // Optionally, send a response indicating successful logout
+    res.sendStatus(200)
+})
+
+// Route to handle password change
 app.post('/admin/security/changeCredentials', // Break line for code clarity
 TokenAuthorization, userAuthentication, modifyCredentials, async (req, res) => {
     // All routes managed by middlewares
