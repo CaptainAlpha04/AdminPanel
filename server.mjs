@@ -7,11 +7,18 @@ import AdminRoute from './routes/admin.mjs'
 import fingerprintManager from './routes/fingerprintManager.mjs'
 import sqlModel from './Model/sqlModel.mjs'
 
+
+// Importing necessary modules
+import { createConnection } from 'mysql2'
+import { checkAndCreateDatabase } from './Model/Database/database.mjs'
+
 // Load environment variables from .env file
 dotenv.config()
 
 // Initialize Express app
 const app = express()
+// Use express.json middleware to parse JSON request bodies
+app.use(express.json())
 
 // Use the routes
 AdminRoute(app)
@@ -22,11 +29,44 @@ const PORT = process.env.PORT || 5000
 
 // Connect to MongoDB database
 mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true')
-    .then(() => console.log('Connected to DB'))
+    .then(() => console.log('Connected to MongoDB'))
     .catch(error => console.log(error))
 
-
+// Start the SQL server
+app.use(async (req, res, next) => {
+    try {
+        console.log('Checking and creating database')
+        const databaseName = process.env.MYSQL_DATABASE // Change this to the desired database name
+        await checkAndCreateDatabase(databaseName)
+        next()
+        return
+    } catch (err) {
+        console.log(err)
+    }
+})
+   
+   // Create a MySQL connection using the connection details from the environment variables
+   const connection = createConnection({
+     host: process.env.MYSQL_HOST,
+     user: process.env.MYSQL_USER,
+     password: process.env.MYSQL_PASSWORD,
+   })
+   
+   // Connect to the MySQL server
+   connection.connect((err) => {
+     if (err) {
+       console.error('Error connecting to MySQL:', err)
+       return
+     }
+     console.log('Connected to MySQL')
+   })
+   
+   // Handle any errors that occur during the connection
+   connection.on('error', (err) => {
+     console.error('MySQL error:', err)
+   })
+   
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}...`);
 })
