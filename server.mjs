@@ -5,6 +5,8 @@ import mongoose from 'mongoose'
 // Import routes
 import AdminRoute from './routes/admin.mjs'
 import fingerprintManager from './routes/fingerprintManager.mjs'
+import sqlModel from './Model/sqlModel.mjs'
+
 // Load environment variables from .env file
 dotenv.config()
 
@@ -14,6 +16,7 @@ const app = express()
 // Use the routes
 AdminRoute(app)
 fingerprintManager(app)
+sqlModel(app)
 // Set the port to listen on, fallback to 5000 if not specified in the environment
 const PORT = process.env.PORT || 5000
 
