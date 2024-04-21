@@ -1,10 +1,11 @@
 import { createData, getData, getAllData, deleteData, deleteAllData, checkAndCreateDatabase } from './Database/database.mjs'
 import { createConnection } from 'mysql2'
+import express from 'express'
 
 export default (app) => {
     
     /* Middlewares */
-
+    app.use(express.json())
     /*Routes for managing attendance System*/
     
     /* Route to get all data */
@@ -30,18 +31,17 @@ export default (app) => {
     /**
      * Route to create a new record
      */
-    app.post('/daily_attendance', async (req, res) => {
-        const { Qalam_Id, Student_Name, Month_Number, ...days} = req.body
-    
+    // New tuple gets created in mysql , so this is working but not visible on thunderclient
+    app.post("/daily_attendance", async (req, res) => {
+        const { Qalam_Id, Student_Name, Month_Number, ...days } = req.body;
         try {
-            const newAttendance = await createData(Qalam_Id, Student_Name, Month_Number, days)
-            res.status(201).send(newAttendance)
+            const newAttendance = await createData(Qalam_Id, Student_Name, Month_Number, days);
+            res.status(201).send(newAttendance);
         } catch (error) {
-            console.error('Error posting data:', error)
-            res.status(500).send('Internal Server Error')
-        }
-    })
-    
+            console.error('Error posting data:', error);
+            res.status(500).send('Internal Server Error');
+    }
+});
     /**
      * Route to delete a specific record
      */

@@ -30,9 +30,19 @@ export async function getAllData() {
 }
 
 // Function to create data
-export async function createData(Qalam_Id, Student_Name, Month_Number, ...days) {
-  const [result] = await pool.query(`INSERT INTO daily_attendance VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [Qalam_Id, Student_Name, Month_Number, ...days])
-  return getData(Qalam_Id)
+// Function to create data
+export async function createData(Qalam_Id, Student_Name, Month_Number, days) {
+    // Convert the days object into an array of its values
+    let daysArray = Object.values(days)
+
+    // Concatenate the non-day values and the days array into a single array
+    let values = [Qalam_Id, Student_Name, Month_Number, ...daysArray]
+
+    // Generate the SQL query
+    const [result] = await pool.query(`INSERT INTO daily_attendance VALUES 
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values)
+    return getData(Qalam_Id)
 }
 
 // Function to delete all data
