@@ -68,34 +68,20 @@ async function main() {
   }
 }
 
-// Function to check and create a database
+// Function to check and create database if not exists
+export async function checkAndCreateDatabase() {
+  const connection = await mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+  });
 
-// Function to check and create a database
-export async function checkAndCreateDatabase(databaseName) {
-  try {
-    console.log('Connected to MySQL.');
+  await connection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.MYSQL_DATABASE}`);
+  await connection.end();
 
-    // Check if the database exists
-    const [rows] = await pool.query(`SHOW DATABASES LIKE ?`, [databaseName]);
+  // Check if the table exists
+  await checkAndCreateTable(process.env.MYSQL_DATABASE);
 
-    if (rows.length === 0) {
-      // Database does not exist, create it
-      console.log(`Database ${databaseName} does not exist. Creating...`);
-      await createDatabase(databaseName);
-      console.log(`Database ${databaseName} created successfully.`);
-    } else {
-      console.log(`Database ${databaseName} already exists.`);
-    }
-
-    // Switch to the database
-    await pool.query(`USE ${databaseName}`);
-    
-    // Check if the table exists
-    await checkAndCreateTable(databaseName);
-
-  } catch (error) {
-    console.error('Error:', error);
-  }
 }
 
 // Function to create a database

@@ -15,6 +15,9 @@ import { checkAndCreateDatabase } from './Model/Database/database.mjs'
 // Load environment variables from .env file
 dotenv.config()
 
+//Checks and creates a Database
+checkAndCreateDatabase().then(() => {
+  console.log('Database check completed.')})
 // Initialize Express app
 const app = express()
 // Use express.json middleware to parse JSON request bodies
@@ -32,19 +35,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true')
     .then(() => console.log('Connected to MongoDB'))
     .catch(error => console.log(error))
 
-// Start the SQL server
-app.use(async (req, res, next) => {
-    try {
-        console.log('Checking and creating database')
-        const databaseName = process.env.MYSQL_DATABASE // Change this to the desired database name
-        await checkAndCreateDatabase(databaseName)
-        next()
-        return
-    } catch (err) {
-        console.log(err)
-    }
-})
-   
    // Create a MySQL connection using the connection details from the environment variables
    const connection = createConnection({
      host: process.env.MYSQL_HOST,
