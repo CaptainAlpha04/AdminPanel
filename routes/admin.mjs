@@ -1,5 +1,4 @@
 import express from 'express'
-import bodyParser from 'body-parser'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Admin from '../MongooseSchemas/adminSchema.mjs'
@@ -49,7 +48,6 @@ app.use(cors({
 
 app.use(cookieParser()) // Cookie parser middleware
 app.use(express.json()) // Parse JSON bodies
-app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
 
 /* Middlewares for Authenticating and Authorizing the users */
 

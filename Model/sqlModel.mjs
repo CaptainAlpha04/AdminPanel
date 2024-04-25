@@ -19,7 +19,7 @@ export default (app) => {
         }
     })
     
-    /**
+    /** 
      * Route to get data with a specific id
      */
     app.get('/daily_attendance/:Qalam_Id', async (req, res) => {

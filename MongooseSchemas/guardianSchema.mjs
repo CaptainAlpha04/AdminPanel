@@ -23,7 +23,7 @@ const guardianSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student'
     }
-});
+})
 
 const Guardian = new mongoose.model('Guardian',guardianSchema)
 

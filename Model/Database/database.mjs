@@ -80,17 +80,12 @@ export async function checkAndCreateDatabase() {
   await connection.end();
 
   // Check if the table exists
-  await checkAndCreateTable(process.env.MYSQL_DATABASE);
+  await checkIfTableExists(process.env.MYSQL_DATABASE);
 
-}
-
-// Function to create a database
-async function createDatabase(databaseName) {
-  await pool.query(`CREATE DATABASE ${databaseName}`);
 }
 
 // Function to check and create a table
-async function checkAndCreateTable(databaseName) {
+async function checkIfTableExists(databaseName) {
   const [tables] = await pool.query(`SHOW TABLES LIKE 'daily_attendance'`);
 
   if (tables.length === 0) {
