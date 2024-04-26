@@ -1,4 +1,4 @@
-import { createData, getData, getAllData, deleteData, deleteAllData, checkAndCreateDatabase } from './Database/database.mjs'
+import { createData, getData, getAllData, deleteData, deleteAllData, checkAndCreateDatabase, markAttendance } from './Database/database.mjs'
 import { createConnection } from 'mysql2'
 import express from 'express'
 
@@ -42,6 +42,31 @@ export default (app) => {
             res.status(500).send('Internal Server Error');
     }
 });
+
+/**
+     * Route to mark daily attendance
+     */
+
+// updates the table after marking the student's attendance
+
+app.post("/daily_attendance/:Qalam_Id/:day/:status",async (req,res) =>{
+
+    try{
+        const databaseName = 'daily_attendance';
+        const day = req.params.day;
+        const id = req.params.Qalam_Id;
+        const status = req.params.status;
+
+        const updatedTable = await markAttendance(databaseName,day,status,id);
+        res.send(updatedTable);
+    }
+    catch(error){
+        console.error("Error marking student's attendance:",error);
+    }
+    
+});   
+
+
     /**
      * Route to delete a specific record
      */
