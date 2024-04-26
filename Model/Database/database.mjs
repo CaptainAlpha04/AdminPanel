@@ -139,3 +139,25 @@ async function createTable() {
 
   await pool.query(createTableQuery);
 }
+
+
+// function to update attendance daily
+
+export async function markAttendance(databaseName,day,status,Qalam_Id){
+  try{
+
+    // update the table after every attendance
+    const updatedTable = `UPDATE ${databaseName}.daily_attendance 
+    SET Day_${day} = ${status}
+    WHERE Qalam_Id = ${Qalam_Id}`;
+
+    await pool.query(updatedTable);
+    console.log("Student's attendance has been marked.");
+    return getData(Qalam_Id);
+
+  }
+  catch(error){
+    console.error('Error:',error);
+  }
+
+}
