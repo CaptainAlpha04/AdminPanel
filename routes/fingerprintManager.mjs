@@ -86,5 +86,10 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
 app.post('/fingerprint/registerNewUser', async (req, res) => {
    const status =  await checkRegistrationStatus(req, res);
    
+   if (status) {
+         res.sendStatus(200)
+   } else {
+        res.sendStatus(401)
+   }
  })
 }

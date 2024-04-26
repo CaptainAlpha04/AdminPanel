@@ -102,42 +102,42 @@ async function checkIfTableExists(databaseName) {
 async function createTable() {
   const createTableQuery = `CREATE TABLE daily_attendance (
     Qalam_Id INT PRIMARY KEY,
-    Student_Name VARCHAR(60) NOT NULL,
-    Month_Number INT NOT NULL,
-    Day_1 VARCHAR(2) NOT NULL,
-    Day_2 VARCHAR(2) NOT NULL,
-    Day_3 VARCHAR(2) NOT NULL,
-    Day_4 VARCHAR(2) NOT NULL,
-    Day_5 VARCHAR(2) NOT NULL,
-    Day_6 VARCHAR(2) NOT NULL,
-    Day_7 VARCHAR(2) NOT NULL,
-    Day_8 VARCHAR(2) NOT NULL,
-    Day_9 VARCHAR(2) NOT NULL,
-    Day_10 VARCHAR(2) NOT NULL,
-    Day_11 VARCHAR(2) NOT NULL,
-    Day_12 VARCHAR(2) NOT NULL,
-    Day_13 VARCHAR(2) NOT NULL,
-    Day_14 VARCHAR(2) NOT NULL,
-    Day_15 VARCHAR(2) NOT NULL,
-    Day_16 VARCHAR(2) NOT NULL,
-    Day_17 VARCHAR(2) NOT NULL,
-    Day_18 VARCHAR(2) NOT NULL,
-    Day_19 VARCHAR(2) NOT NULL,
-    Day_20 VARCHAR(2) NOT NULL,
-    Day_21 VARCHAR(2) NOT NULL,
-    Day_22 VARCHAR(2) NOT NULL,
-    Day_23 VARCHAR(2) NOT NULL,
-    Day_24 VARCHAR(2) NOT NULL,
-    Day_25 VARCHAR(2) NOT NULL,
-    Day_26 VARCHAR(2) NOT NULL,
-    Day_27 VARCHAR(2) NOT NULL,
-    Day_28 VARCHAR(2) NOT NULL,
+    Student_Name VARCHAR(60),
+    Month_Number INT,
+    Day_1 VARCHAR(2),
+    Day_2 VARCHAR(2),
+    Day_3 VARCHAR(2),
+    Day_4 VARCHAR(2),
+    Day_5 VARCHAR(2),
+    Day_6 VARCHAR(2),
+    Day_7 VARCHAR(2),
+    Day_8 VARCHAR(2),
+    Day_9 VARCHAR(2),
+    Day_10 VARCHAR(2),
+    Day_11 VARCHAR(2),
+    Day_12 VARCHAR(2),
+    Day_13 VARCHAR(2),
+    Day_14 VARCHAR(2),
+    Day_15 VARCHAR(2),
+    Day_16 VARCHAR(2),
+    Day_17 VARCHAR(2),
+    Day_18 VARCHAR(2),
+    Day_19 VARCHAR(2),
+    Day_20 VARCHAR(2),
+    Day_21 VARCHAR(2),
+    Day_22 VARCHAR(2),
+    Day_23 VARCHAR(2),
+    Day_24 VARCHAR(2),
+    Day_25 VARCHAR(2),
+    Day_26 VARCHAR(2),
+    Day_27 VARCHAR(2),
+    Day_28 VARCHAR(2),
     Day_29 VARCHAR(2),
     Day_30 VARCHAR(2),
     Day_31 VARCHAR(2)
   )`;
 
-  await pool.query(createTableQuery);
+  await pool.query(createTableQuery)
 }
 
 
@@ -149,15 +149,15 @@ export async function markAttendance(databaseName,day,status,Qalam_Id){
     // update the table after every attendance
     const updatedTable = `UPDATE ${databaseName}.daily_attendance 
     SET Day_${day} = ${status}
-    WHERE Qalam_Id = ${Qalam_Id}`;
+    WHERE Qalam_Id = ${Qalam_Id}`
 
-    await pool.query(updatedTable);
-    console.log("Student's attendance has been marked.");
-    return getData(Qalam_Id);
+    await pool.query(updatedTable)
+    console.log("Student's attendance has been marked.")
+    return getData(Qalam_Id)
 
   }
   catch(error){
-    console.error('Error:',error);
+    console.error('Error:', error)
   }
 
 }
