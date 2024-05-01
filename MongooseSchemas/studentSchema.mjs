@@ -4,9 +4,13 @@ import mongoose from "mongoose"
 const studentSchema = new mongoose.Schema({
     
     username: String,
-    School: String,
-    Department: String,
-    qalamId: Number,
+    school: String,
+    department: String,
+    qalamId: {
+        require: true,
+        type: Number,
+        unique: true
+    },
     hostelName:String,
     phoneNumber:Number,
     fingerprint_Id: String,
@@ -30,6 +34,6 @@ const studentSchema = new mongoose.Schema({
 
 });
 
-const Student = new mongoose.model('Student',studentSchema)
+const Student = new mongoose.model('Student', studentSchema)
 
 export default Student

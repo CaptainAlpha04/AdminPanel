@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import AdminRoute from './routes/admin.mjs'
 import fingerprintManager from './routes/fingerprintManager.mjs'
 import sqlModel from './Model/sqlModel.mjs'
-
+import student from './routes/student.mjs'
 
 // Importing necessary modules
 import { createConnection } from 'mysql2'
@@ -27,6 +27,7 @@ app.use(express.json())
 AdminRoute(app)
 fingerprintManager(app)
 sqlModel(app)
+student(app)
 // Set the port to listen on, fallback to 5000 if not specified in the environment
 const PORT = process.env.PORT || 5000
 
