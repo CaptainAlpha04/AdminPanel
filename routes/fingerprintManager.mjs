@@ -40,15 +40,6 @@ async function checkRegistrationStatus(req, res) {
     }
 }
 
-/* Route for testing purposes!
-*  This route will be used to register a finger print
-*   Use this route to test if the server is running
-*/
-app.post('/', (req, res) => { 
-    console.log("finger print registered")
-    res.sendStatus(200).json({message: "Finger print registered"})
-})
-
 /* Actual Routes related to fingerprint */
 
 // Checks if the hardware is able to access the server
