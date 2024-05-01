@@ -74,15 +74,11 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
 })
 
  let newStudent = null;
- let fingerprintID = 1;
  
  //Check if a new Student object has been submitted, if yes store it in the newStudent.
  app.post('/newStudent', (req, res) => {
     // req.body now contains the JavaScript object
     const student = req.body;
-
-    // Assign the next fingerprintID to the student
-    student.fingerprintID = fingerprintID;
 
     // Store the student object in the newStudent variable
     newStudent = student;
@@ -99,14 +95,11 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
 app.post('/checkForNewUser', async (req, res) => {
     //const status =  await checkRegistrationStatus(req, res);
     
+    // If a new student object exists, respond with the student's fingerprintID
     if (newStudent) {
-        // If a new student object exists, respond with the student's fingerprintID
-        //res.status(200).send({fingerprintID: newStudent.fingerprintID});
         res.sendStatus(200);
-        // Reset the newStudent variable
-        newStudent = null;
-        // Increment the fingerprintID, reset to 1 if it exceeds 127
-        fingerprintID = fingerprintID < 127 ? fingerprintID + 1 : 0;
+        
+        newStudent = null;  // Reset the newStudent variable
     } else {
         // If no new student object exists, respond with 401
         res.sendStatus(401);
