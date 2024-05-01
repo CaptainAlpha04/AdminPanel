@@ -141,6 +141,15 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
+
+app.get('/', (req, res) => {
+    try {
+        CreateUserAdmin()
+        console.log("done")
+    } catch (error) {
+        
+    }
+})
 /* Routes related to Admin User */
 
 // Admin Verification Route, checks for Token Authorization and responds
