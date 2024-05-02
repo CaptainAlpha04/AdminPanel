@@ -1,5 +1,7 @@
 import fingerPrintStatus from "../MongooseSchemas/FingerprintStatus.mjs"
 import express from 'express'
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default (app) => {
 
@@ -40,20 +42,10 @@ async function checkRegistrationStatus(req, res) {
     }
 }
 
-/* Route for testing purposes!
-*  This route will be used to register a finger print
-*   Use this route to test if the server is running
-*/
-app.post('/', (req, res) => { 
-    console.log("finger print registered")
-    res.sendStatus(200).json({message: "Finger print registered"})
-})
-
 /* Actual Routes related to fingerprint */
 
 // Checks if the hardware is able to access the server
-
-app.post('/fingerprint/register', checkHardwareToken ,async (req, res) => {
+app.post('/fingerprint/register', async (req, res) => {
     console.log("Hardware is able to access the server")
     res.sendStatus(200)
 })
@@ -78,18 +70,43 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
         }
     } catch (err) {
         console.log(err)
-    }
+    }                   
 })
 
-// Checks if the fingerprint registration is allowed
+ let newStudent = null;
+ 
+ //Check if a new Student object has been submitted, if yes store it in the newStudent.
+ app.post('/newStudent', (req, res) => {
+    // req.body now contains the JavaScript object
+    const student = req.body;
 
-app.post('/fingerprint/registerNewUser', async (req, res) => {
-   const status =  await checkRegistrationStatus(req, res);
-   
-   if (status) {
-         res.sendStatus(200)
-   } else {
-        res.sendStatus(401)
-   }
- })
+    // Store the student object in the newStudent variable
+    newStudent = student;
+
+    // You can now access properties of the student object
+    console.log(student.name);
+    console.log(student.cnic);
+    console.log(student.phone);
+
+    res.status(200).send('Student data received');
+});
+
+// Checks if a new student object has been submitted
+app.post('/checkForNewUser', async (req, res) => {
+    //const status =  await checkRegistrationStatus(req, res);
+    
+    // If a new student object exists, respond with the student's fingerprintID
+    if (newStudent) {
+        res.sendStatus(200);
+        
+        newStudent = null;  // Reset the newStudent variable
+    } else {
+        // If no new student object exists, respond with 401
+        res.sendStatus(401);
+    }
+  })
 }
+
+
+
+
