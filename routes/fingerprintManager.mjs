@@ -1,6 +1,7 @@
 import fingerPrintStatus from "../MongooseSchemas/FingerprintStatus.mjs"
 import express from 'express'
 import dotenv from 'dotenv';
+import Student from '../MongooseSchemas/studentSchema.mjs'
 dotenv.config();
 
 export default (app) => {
@@ -8,7 +9,7 @@ export default (app) => {
 /* Express Middlewares  */
 
 app.use(express.json())
-
+app.use(express.text())
 /* Middlewares related to the Fingerprint Management */
 
 async function checkHardwareToken(req, res, next) {
@@ -73,38 +74,19 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
     }                   
 })
 
- let newStudent = null;
  
- //Check if a new Student object has been submitted, if yes store it in the newStudent.
- app.post('/fingerprint/getNewStudentID', (req, res) => {
-    // req.body now contains the JavaScript object
-    const student = req.body;
+//  //Check if a new Student object has been submitted, if yes store it in the newStudent.
+//  app.post('/fingerprint/getNewStudentID', (req, res) => {
+//     // req.body now contains the JavaScript object
+//     const student = req.body;
 
-    // Store the student object in the newStudent variable
-    newStudent = student;
+//     // You can now access properties of the student object
+//     console.log(student.username);
+//     console.log(student.CNIC);
+//     console.log(student.phoneNumber);
 
-    // You can now access properties of the student object
-    console.log(student.username);
-    console.log(student.CNIC);
-    console.log(student.phoneNumber);
-
-    res.status(200).send('Student data received');
-});
-
-// Checks if a new student object has been submitted
-app.post('/checkForNewUser', async (req, res) => {
-    //const status =  await checkRegistrationStatus(req, res);
-    
-    // If a new student object exists, respond with the student's fingerprintID
-    if (newStudent) {
-        res.sendStatus(200);
-        
-        newStudent = null;  // Reset the newStudent variable
-    } else {
-        // If no new student object exists, respond with 401
-        res.sendStatus(401);
-    }
-  })
+//     res.status(200).send('Student data received');
+// });
 }
 
 
