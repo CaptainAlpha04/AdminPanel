@@ -76,7 +76,7 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
  let newStudent = null;
  
  //Check if a new Student object has been submitted, if yes store it in the newStudent.
- app.post('/newStudent', (req, res) => {
+ app.post('/fingerprint/getNewStudentID', (req, res) => {
     // req.body now contains the JavaScript object
     const student = req.body;
 
@@ -84,9 +84,9 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
     newStudent = student;
 
     // You can now access properties of the student object
-    console.log(student.name);
-    console.log(student.cnic);
-    console.log(student.phone);
+    console.log(student.username);
+    console.log(student.CNIC);
+    console.log(student.phoneNumber);
 
     res.status(200).send('Student data received');
 });

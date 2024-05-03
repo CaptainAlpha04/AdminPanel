@@ -19,7 +19,7 @@ async function checkIfStudentExists(req, res, next) {
 /* Routes related to students */
     app.post('/student/addNewStudent', checkIfStudentExists, async (req, res) => {
     // Parsing request body
-        const {username, CNIC, phoneNumber, school, department, fingerprint_Id, qalamId} = req.body
+        const {username, CNIC, phoneNumber, school, department, qalamId} = req.body
         // Add the student to the database
         const student = new Student({
             username,
@@ -27,12 +27,10 @@ async function checkIfStudentExists(req, res, next) {
             phoneNumber,
             school,
             department,
-            qalamId,
-            fingerprint_Id,
+            qalamId
         })
         //Saves the student record
         await student.save()
-        res.status(201).send('User Created');
 })
 
 }
