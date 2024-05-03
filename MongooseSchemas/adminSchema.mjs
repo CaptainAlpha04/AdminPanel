@@ -10,6 +10,9 @@ const adminSchema = new mongoose.Schema({
     },
     password: {
         type: String, 
+    },
+    image: {
+        type: Blob
     }
 })
 
