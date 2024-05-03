@@ -6,33 +6,9 @@ dotenv.config();
 
 export default (app) => {
 
-/* Express Middlewares  */
-
 app.use(express.json())
-app.use(express.text())
-/* Middlewares related to the Fingerprint Management */
-
-async function checkHardwareToken(req, res, next) {
-         
-    // Extract the verification token from the request body
-    const verificationToken = req.body.verificationToken
-    const authenticationToken = verificationToken.split('.')[0]
-    const hostelId = verificationToken.split('.')[1]
-
-    try {
-    if (authenticationToken === process.env.HARDWARE_TOKEN)
-        next()
-    else
-        res.sendStatus(401).json({message: "Unauthorized"})
-    } catch (err) {
-
-    console.log(err)
-    res.sendStatus(500).json({message: "Internal server error"})
-    }
-}
 
 // Middle ware to check Registration Status
-
 async function checkRegistrationStatus(req, res) {
     const registrationStatus = await fingerPrintStatus.findOne()
     if (registrationStatus) {
@@ -43,16 +19,12 @@ async function checkRegistrationStatus(req, res) {
     }
 }
 
-/* Actual Routes related to fingerprint */
-
-// Checks if the hardware is able to access the server
-app.post('/checkingConnection', async (req, res) => {
-    console.log("Hardware is able to access the server")
+// NodeMCU checks if it is able to access the server
+app.post('/checkingConnection', checkHardwareToken, async (req, res) => {
     res.sendStatus(200)
 })
 
 // Allows the admin to enable new registration of fingerprints 
-
 app.post('/fingerprint/allowNewRegistration', async (req, res) => {
     try {
         // Extracts and checks for existing status
@@ -74,30 +46,62 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
     }                   
 })
 
-app.post('/FingerID=:id', (req, res) => {
+//NodeMCU directs fingerprint id here for attendance after a scan match is found.
+app.post('/FingerID::id', async (req, res) => {
     const id = req.params.id;
-    //Need to check with database, mark attendance, return username with that fingerID
 
+    const students = await Student.find({});    //querying for all student docs
+    
+    let studentFound = null;
 
-    console.log(`Got fingerprint ID: ${id}, Attendance marked!`);
-    const responseString = `(Username)'s (with ID#${id}) attendance has been marked!`;
-    res.send(responseString); // Send a response back to Arduino
-  });
+    //for each student
+    for (let student of students) {
+        const splitFingerprintId = student.fingerprint_Id.split(".");    // Split the fingerprint_Id at the "."
+        
+        // checking if the second part of the fingerprint_Id matches the id from the fingerprint scanner
+        if (splitFingerprintId[1] === id) {
+            studentFound = student;
+            break;
+        }
+    }
+    
+    if (studentFound) {
+        console.log(`Got fingerprint ID: ${id}, Attendance marked for ${studentFound.username}!`);
+        const responseObject = {
+            username: studentFound.username,
+            qalamId: studentFound.qalamId
+        };
+        res.json(responseObject); // Send a response back to Arduino
+    } else {
+        console.log(`No student found with fingerprint ID: ${id}`);
+        res.status(404).send('No student found'); // Send a 404 status code
+    }
+});
 
- 
-//  //Check if a new Student object has been submitted, if yes store it in the newStudent.
-//  app.post('/fingerprint/getNewStudentID', (req, res) => {
-//     // req.body now contains the JavaScript object
-//     const student = req.body;
+// Middlewares related to the Fingerprint Management 
 
-//     // You can now access properties of the student object
-//     console.log(student.username);
-//     console.log(student.CNIC);
-//     console.log(student.phoneNumber);
+// Function to authorize the correct NodeMCU
+async function checkHardwareToken(req, res, next) {
+         
+    // Extract the verification token from the request body
+    const verificationToken = req.body.verificationToken
+    const authenticationToken = verificationToken.split('.')[0]
+    const hostelId = verificationToken.split('.')[1]
 
-//     res.status(200).send('Student data received');
-// });
+    try {
+    if (authenticationToken === process.env.HARDWARE_TOKEN) {
+        console.log("ESP8266-NodeMCU Authorized!")
+        next()
+    } else
+        res.sendStatus(401).json({message: "Unauthorized"})
+    } catch (err) {
+
+    console.log(err)
+    res.sendStatus(500).json({message: "Internal server error"})
+    }
 }
+
+} 
 
 
 
