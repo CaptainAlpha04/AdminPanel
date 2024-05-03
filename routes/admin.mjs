@@ -1,6 +1,5 @@
 import express from 'express'
-import bodyParser from 'body-parser'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import Admin from '../MongooseSchemas/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
@@ -49,7 +48,6 @@ app.use(cors({
 
 app.use(cookieParser()) // Cookie parser middleware
 app.use(express.json()) // Parse JSON bodies
-app.use(bodyParser.json()) // Parse JSON bodies (deprecated, can be removed if express.json() is sufficient)
 
 /* Middlewares for Authenticating and Authorizing the users */
 
@@ -143,6 +141,15 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
+
+app.get('/', (req, res) => {
+    try {
+        CreateUserAdmin()
+        console.log("done")
+    } catch (error) {
+        
+    }
+})
 /* Routes related to Admin User */
 
 // Admin Verification Route, checks for Token Authorization and responds
