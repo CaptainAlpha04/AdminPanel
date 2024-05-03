@@ -1,5 +1,7 @@
 import Student from '../MongooseSchemas/studentSchema.mjs'
+import {EventEmitter} from 'events'
 
+const eventEmitter = new EventEmitter();
 /* Exporting the Package to server */
 export default (app) => {
 
@@ -8,7 +10,6 @@ export default (app) => {
 async function checkIfStudentExists(req, res, next) {
     // Check if the student exists in the database
     const qalamId = req.body.qalamId
-    console.log(qalamId)
     const student = await Student.findOne({qalamId: qalamId})
     if(student) {
         res.status(400).send('Student Already Exists!')
@@ -35,6 +36,9 @@ let newStudent = null;
         //Saves the student record
         await student.save()
         newStudent = student;
+        eventEmitter.once('fingerprintUpdated', () => {
+            res.sendStatus(200); // Send a 200 status code
+        });
 })
 
 // Checks if a new student object has been submitted
@@ -49,12 +53,14 @@ app.post('/fingerprint/checkForNewStudent', async (req, res) => {
             student.fingerprint_Id = student.qalamId + "." + fingerprint_Id;
             await student.save()
             console.log("fingerprintID updated")
+
+            eventEmitter.emit('fingerprintUpdated')
         }
         newStudent = null;
     } else {
         // If no new student object exists, respond with 401
         res.sendStatus(401);
     }
-  })
+})
 
 }

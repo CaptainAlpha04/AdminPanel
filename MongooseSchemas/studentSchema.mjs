@@ -12,6 +12,7 @@ const studentSchema = new mongoose.Schema({
         unique: true
     },
     hostelName:String,
+    roomNumber: Number,
     phoneNumber:Number,
     fingerprint_Id: String,
     absentDays: Number,
