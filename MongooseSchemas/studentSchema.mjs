@@ -31,6 +31,10 @@ const studentSchema = new mongoose.Schema({
     guardian: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Guardian'
+    },
+
+    image: {
+        type: Blob
     }
 
 });
