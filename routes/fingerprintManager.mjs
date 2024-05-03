@@ -46,7 +46,7 @@ async function checkRegistrationStatus(req, res) {
 /* Actual Routes related to fingerprint */
 
 // Checks if the hardware is able to access the server
-app.post('/fingerprint/register', async (req, res) => {
+app.post('/checkingConnection', async (req, res) => {
     console.log("Hardware is able to access the server")
     res.sendStatus(200)
 })
@@ -73,6 +73,16 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
         console.log(err)
     }                   
 })
+
+app.post('/FingerID=:id', (req, res) => {
+    const id = req.params.id;
+    //Need to check with database, mark attendance, return username with that fingerID
+
+
+    console.log(`Got fingerprint ID: ${id}, Attendance marked!`);
+    const responseString = `(Username)'s (with ID#${id}) attendance has been marked!`;
+    res.send(responseString); // Send a response back to Arduino
+  });
 
  
 //  //Check if a new Student object has been submitted, if yes store it in the newStudent.
