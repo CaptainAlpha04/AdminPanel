@@ -144,3 +144,4 @@ async function createTable() {
 
   await pool.query(createTableQuery);
 }
+
