@@ -1,7 +1,7 @@
-import fingerPrintStatus from "../MongooseSchemas/FingerprintStatus.mjs"
+import fingerPrintStatus from "../schema/FingerprintStatus.mjs"
 import express from 'express'
 import dotenv from 'dotenv';
-import Student from '../MongooseSchemas/studentSchema.mjs'
+import Student from '../schema/studentSchema.mjs'
 dotenv.config();
 
 export default (app) => {

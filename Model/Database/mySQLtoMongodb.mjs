@@ -1,5 +1,5 @@
 import cron from 'node-cron'
-import { mongooseConnection } from '../../MongooseSchemas/attendanceSheet.mjs'
+import { mongooseConnection } from '../../schema/attendanceSheet.mjs'
 import { Attendance } from './attendance_sheet.mjs'
 import { getAllData , deleteAllData, mysqlPool } from './database.mjs'
 

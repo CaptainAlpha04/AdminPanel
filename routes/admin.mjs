@@ -1,7 +1,7 @@
 import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import Admin from '../MongooseSchemas/adminSchema.mjs'
+import Admin from '../schema/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 

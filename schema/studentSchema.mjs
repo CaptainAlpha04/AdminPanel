@@ -34,7 +34,8 @@ const studentSchema = new mongoose.Schema({
     },
 
     image: {
-        type: Blob
+        data: Buffer,
+        contentType: String
     }
 
 });

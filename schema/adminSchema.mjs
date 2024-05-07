@@ -12,7 +12,8 @@ const adminSchema = new mongoose.Schema({
         type: String, 
     },
     image: {
-        type: Blob
+        data: Buffer,
+        contentType: String
     }
 })
 
