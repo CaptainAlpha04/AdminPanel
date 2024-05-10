@@ -1,4 +1,4 @@
-import Student from '../MongooseSchemas/studentSchema.mjs'
+import Student from '../schema/studentSchema.mjs'
 import {EventEmitter} from 'events'
 
 const eventEmitter = new EventEmitter();
