@@ -37,9 +37,8 @@ let newStudent = null;
         //Saves the student record
         await student.save()
         newStudent = student;
-        
         await createData(qalamId, username, department, new Date().getMonth());     
-
+        console.log('Hi')
         eventEmitter.once('fingerprintUpdated', () => {
             res.sendStatus(200); // Send a 200 status code
         });
@@ -49,8 +48,11 @@ let newStudent = null;
 app.post('/fingerprint/checkForNewStudent', async (req, res) => {
     //const status =  await checkRegistrationStatus(req, res); 
     // If a new student object exists, respond with the student's fingerprintID
+    
     if (newStudent) {
+        console.log(newStudent.username)
         res.sendStatus(200);
+        console.log('Hello New Student')
         const fingerprint_Id = req.body.id;
         console.log(fingerprint_Id)
         const student = await Student.findOne({qalamId: newStudent.qalamId})

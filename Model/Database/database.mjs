@@ -151,7 +151,6 @@ export async function markAttendance(databaseName, status, Qalam_Id) {
     WHERE Qalam_Id = ${Qalam_Id}`
 
     await pool.query(updatedTable)
-    console.log("Student's attendance has been marked.")
     return getData(Qalam_Id)
 
   }
@@ -161,18 +160,18 @@ export async function markAttendance(databaseName, status, Qalam_Id) {
 
 }
 
-export async function attendaceAlreadyMarked(database, QalamID) {
+export async function attendanceAlreadyMarked(database, QalamID) {
   try {
+    const currentDate = new Date().getDate();
     const isPresent = `SELECT DAY_${new Date().getDate()} 
     FROM ${database}.daily_attendance 
     WHERE Qalam_Id = ${QalamID}`
     const [rows] = await pool.query(isPresent)
 
     if (rows[0][`DAY_${new Date().getDate()}`] === 'P') {
-      console.log("Attendance already marked")
-      return true;
-    } else {
       return false;
+    } else {
+      return true;
     }
     
   } catch (err) {

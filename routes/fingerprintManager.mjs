@@ -2,7 +2,7 @@ import fingerPrintStatus from "../schema/FingerprintStatus.mjs"
 import express from 'express'
 import dotenv from 'dotenv';
 import Student from '../schema/studentSchema.mjs'
-import {markAttendance, attendaceAlreadyMarked} from '../Model/Database/database.mjs'
+import {markAttendance, attendanceAlreadyMarked} from '../Model/Database/database.mjs'
 
 dotenv.config();
 
@@ -70,15 +70,15 @@ app.post('/FingerID::id', async (req, res) => {
     
     if (studentFound) {
         console.log('student found')
-        const attendanceMarked = await !attendaceAlreadyMarked(process.env.MYSQL_DATABASE, splitFingerprintId[0])
+        const attendanceMarked = await attendanceAlreadyMarked(process.env.MYSQL_DATABASE, splitFingerprintId[0])
+
         // Mark attendance of student
-        if (!attendanceMarked) {
-        
-        res.sendStatus(200); // Send a response back to Arduino
-        await markAttendance(process.env.MYSQL_DATABASE, `"P"`, splitFingerprintId[0])
-        console.log('Attendance marked') 
-        } else {
-            console.log('Attendance already Marked')
+        if (attendanceMarked) {
+            res.sendStatus(200); // Send a response back to Arduino
+            await markAttendance(process.env.MYSQL_DATABASE, `"P"`, splitFingerprintId[0])
+            console.log(`Attendance marked of student with QalamId ${splitFingerprintId[0]} for ${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}\n`) 
+        } else { 
+            console.log(`Attendance already marked of student with QalamId ${splitFingerprintId[0]} for ${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}\n`)
         }
     } else {
         console.log(`No student found with fingerprint ID: ${id}`);
