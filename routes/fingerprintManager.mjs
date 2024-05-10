@@ -2,6 +2,7 @@ import fingerPrintStatus from "../schema/FingerprintStatus.mjs"
 import express from 'express'
 import dotenv from 'dotenv';
 import Student from '../schema/studentSchema.mjs'
+import {markAttendance, attendaceAlreadyMarked} from '../Model/Database/database.mjs'
 dotenv.config();
 
 export default (app) => {
@@ -53,10 +54,11 @@ app.post('/FingerID::id', async (req, res) => {
     const students = await Student.find({});    //querying for all student docs
     
     let studentFound = null;
+    let splitFingerprintId 
 
     //for each student
     for (let student of students) {
-        const splitFingerprintId = student.fingerprint_Id.split(".");    // Split the fingerprint_Id at the "."
+        splitFingerprintId = student.fingerprint_Id.split(".");    // Split the fingerprint_Id at the "."
         
         // checking if the second part of the fingerprint_Id matches the id from the fingerprint scanner
         if (splitFingerprintId[1] === id) {
@@ -66,12 +68,17 @@ app.post('/FingerID::id', async (req, res) => {
     }
     
     if (studentFound) {
-        console.log(`Got fingerprint ID: ${id}, Attendance marked for ${studentFound.username}!`);
-        const responseObject = {
-            username: studentFound.username,
-            qalamId: studentFound.qalamId
-        };
-        res.json(responseObject); // Send a response back to Arduino
+        console.log('student found')
+        const attendanceMarked = await !attendaceAlreadyMarked(process.env.MYSQL_DATABASE, splitFingerprintId[0])
+        // Mark attendance of student
+        if (!attendanceMarked) {
+        
+        res.sendStatus(200); // Send a response back to Arduino
+        await markAttendance(process.env.MYSQL_DATABASE, `"P"`, splitFingerprintId[0])
+        console.log('Attendance marked') 
+        } else {
+            console.log('Attendance already Marked')
+        }
     } else {
         console.log(`No student found with fingerprint ID: ${id}`);
         res.status(404).send('No student found'); // Send a 404 status code

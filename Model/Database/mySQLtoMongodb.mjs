@@ -1,76 +1,84 @@
+import { mysqlPool, calculateTotalDays, calculatePresent, calculateLeaves, retrieveAllIds, deleteAllData } from './database.mjs'
+import mongoose from 'mongoose'
+import dotenv from 'dotenv'
 import cron from 'node-cron'
-import { mongooseConnection } from '../../schema/attendanceSheet.mjs'
-import { Attendance } from './attendance_sheet.mjs'
-import { getAllData , deleteAllData, mysqlPool } from './database.mjs'
 
-// SQL query to get current month's attendance data
-const getCurrentMonthAttendanceQuery = `
-    SELECT * 
-    FROM attendance_table 
-    WHERE Month_Number = MONTH(CURRENT_DATE())
-`
+dotenv.config()
 
-// Function to transfer data from MySQL to MongoDB
-async function transferDataToMongoDB() {
-    try {
-        // Retrieve attendance data from MySQL
-        const [rows] = await getAllData()
-        
-        // Insert retrieved data into MongoDB
-        await Attendance.insertMany(rows)
+// Set up MongoDB connection
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.mongodb.net/`)
 
-        console.log('Data transferred to MongoDB successfully.')
-    } catch (error) {
-        console.error('Error transferring data to MongoDB:', error)
+// Define MongoDB schema
+const monthlyAttendanceSchema = new mongoose.Schema({
+    Qalam_Id: {
+        type: Number,
+        required: true,
+        unique: true
+    },
+    Total_Days: {
+        type: Number,
+        required: true
+    },
+    Present_Days: {
+        type: Number,
+        required: true
+    },
+    Leave_Days: {
+        type: Number,
+        required: true
+    },
+    Image: {
+        type: Blob
     }
-}
-
-// Function to delete data of the previous month from MySQL
-async function deletePreviousMonthDataFromMySQL() {
-    try {
-        // Get the current month
-        const currentMonth = new Date().getMonth() + 1 // JavaScript months are zero-based
-
-        // Calculate the previous month
-        const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1
-
-        // Delete data of the previous month from MySQL
-        await deleteAllData()
-
-        console.log('Previous month data deleted from MySQL.')
-    } catch (error) {
-        console.error('Error deleting previous month data from MySQL:', error)
-    }
-}
-
-// Schedule the task to run on the last day of every month
-const job = cron.schedule('*/5 * * * * *', async () => {
-    console.log('Running data transfer and deletion task on the last day of the month...')
-    await transferDataToMongoDB()
-    await deletePreviousMonthDataFromMySQL()
 })
 
-// Stop the cron job after 5 seconds
-setTimeout(() => {
-    job.stop()
-    console.log('Cron job stopped after 5 seconds.')
-}, 5000) // Stop after 5 seconds (5000 milliseconds)
+// Define MongoDB model
+const MonthlyAttendance = mongoose.model('MonthlyAttendance', monthlyAttendanceSchema)
 
-// Function to retrieve data from MongoDB
-async function retrieveDataFromMongoDB() {
+// Function to transfer data from MySQL to MongoDB
+async function transferData() {
     try {
-        // Find all documents in the collection
-        const data = await Attendance.findMany()
+        const allQalamIds = await retrieveAllIds("daily_attendance","daily_attendance")
 
-        // Log the retrieved data
-        console.log('Retrieved data from MongoDB:', data)
+        for (const qalamId of allQalamIds) {
+            const totalDays = await calculateTotalDays("daily_attendance", qalamId, "daily_attendance")
+            const presentDays = await calculatePresent("daily_attendance", "daily_attendance", qalamId, totalDays)
+            const leaveDays = await calculateLeaves("daily_attendance", "daily_attendance", qalamId, totalDays)
+
+            await MonthlyAttendance.create({
+                Qalam_Id: qalamId,
+                Total_Days: totalDays,
+                Present_Days: presentDays,
+                Leave_Days: leaveDays
+            })
+
+            console.log(`Data transferred successfully for Qalam ID ${qalamId}`)
+        }
+
+        
+        // After transferring data, check if MongoDB has received all the data
+        const countInMongoDB = await MonthlyAttendance.countDocuments()
+        console.log(`Total documents in MongoDB: ${countInMongoDB}`)
+
+        // If MongoDB has received the data, delete records of the previous month from MySQL
+        if (countInMongoDB === allQalamIds.length) {
+            await deleteAllData()
+        }
+
     } catch (error) {
-        console.error('Error retrieving data from MongoDB:', error)
+        console.error('Error transferring data:', error)
+    } finally {
+        mongoose.connection.close()
     }
 }
 
-// Call the function to retrieve data
-retrieveDataFromMongoDB()
+//  Function to get the current date of the Month
+const currentDate = new Date()
+const dayOfMonth = currentDate.getDate()
+console.log(dayOfMonth)
 
-// Start the application
-console.log('Application started.')
+// this line is for testing purpose, transfers data every 10 secs
+//cron.schedule('*/10 * * * * *',transferData)
+
+// Schedule the data transfer task to run at the end of every month
+cron.schedule(`0 0 ${dayOfMonth} * *`, transferData)

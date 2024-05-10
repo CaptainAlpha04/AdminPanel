@@ -144,11 +144,11 @@ async function createTable() {
 
 // function to update attendance daily
 
-export async function markAttendance(databaseName,day,status,Qalam_Id){
+export async function markAttendance(databaseName, status, Qalam_Id) {
   try{
     // update the table after every attendance
     const updatedTable = `UPDATE ${databaseName}.daily_attendance 
-    SET Day_${day} = ${status}
+    SET Day_${new Date().getDate()} = ${status}
     WHERE Qalam_Id = ${Qalam_Id}`
 
     await pool.query(updatedTable)
@@ -160,4 +160,23 @@ export async function markAttendance(databaseName,day,status,Qalam_Id){
     console.error('Error:', error)
   }
 
+}
+
+export async function attendaceAlreadyMarked(database, QalamID) {
+  try {
+    const isPresent = `SELECT DAY_${new Date().getDate()} 
+    FROM ${database}.daily_attendance 
+    WHERE Qalam_Id = ${QalamID}`
+    const [rows] = await pool.query(isPresent)
+
+    if (rows[0][`DAY_${new Date().getDate()}`] === 'P') {
+      console.log("Attendance already marked")
+      return true;
+    } else {
+      return false;
+    }
+    
+  } catch (err) {
+    console.log(err)
+  }
 }
