@@ -1,4 +1,5 @@
 import Student from '../schema/studentSchema.mjs'
+import { createData } from '../Model/Database/database.mjs';
 import {EventEmitter} from 'events'
 
 const eventEmitter = new EventEmitter();
@@ -23,7 +24,7 @@ let newStudent = null;
 /* Routes related to students */
     app.post('/student/addNewStudent', checkIfStudentExists, async (req, res) => {
     // Parsing request body
-        const {username, CNIC, phoneNumber, school, department, qalamId} = req.body
+        const {username, CNIC, phoneNumber, school, department, qalamId} = await req.body
         // Add the student to the database
         const student = new Student({
             username,
@@ -36,8 +37,8 @@ let newStudent = null;
         //Saves the student record
         await student.save()
         newStudent = student;
-
         
+        await createData(qalamId, username, department, new Date().getMonth());     
 
         eventEmitter.once('fingerprintUpdated', () => {
             res.sendStatus(200); // Send a 200 status code

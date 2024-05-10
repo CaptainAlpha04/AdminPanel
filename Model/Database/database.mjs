@@ -30,17 +30,16 @@ export async function getAllData() {
 }
 
 // Function to create data
-export async function createData(Qalam_Id, Student_Name, Month_Number, days) {
+export async function createData(Qalam_Id, Student_Name, major, Month_Number) {
     // Convert the days object into an array of its values
-    let daysArray = Object.values(days)
+   // let daysArray = days ? Object.values(days) : Array(31).fill(null); // Assuming there are 31 days in a month
 
     // Concatenate the non-day values and the days array into a single array
-    let values = [Qalam_Id, Student_Name, Month_Number, ...daysArray]
+    let values = [Qalam_Id, Student_Name, major, Month_Number]
 
     // Generate the SQL query
-    const [result] = await pool.query(`INSERT INTO daily_attendance VALUES 
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values)
+    const [result] = await pool.query(`INSERT INTO daily_attendance (Qalam_Id, Student_Name, Major, Month_Number) VALUES 
+    (?, ?, ?, ?);` , values)
     return getData(Qalam_Id)
 }
 

@@ -3,7 +3,7 @@ import express from 'express'
 import dotenv from 'dotenv';
 import Student from '../schema/studentSchema.mjs'
 import {markAttendance, attendaceAlreadyMarked} from '../Model/Database/database.mjs'
-import { markAttendance } from '../Model/Database/database.mjs'
+
 dotenv.config();
 
 export default (app) => {
