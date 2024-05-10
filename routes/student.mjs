@@ -1,4 +1,4 @@
-import Student from '../schema/studentSchema.mjs'
+import Student from '../MongooseSchemas/studentSchema.mjs'
 import {EventEmitter} from 'events'
 
 const eventEmitter = new EventEmitter();
@@ -31,10 +31,7 @@ let newStudent = null;
             phoneNumber,
             school,
             department,
-            qalamId, 
-            //image, 
-            roomNumber,
-            hostelName
+            qalamId
         })
         //Saves the student record
         await student.save()
