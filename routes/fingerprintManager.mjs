@@ -2,6 +2,7 @@ import fingerPrintStatus from "../schema/FingerprintStatus.mjs"
 import express from 'express'
 import dotenv from 'dotenv';
 import Student from '../schema/studentSchema.mjs'
+import { markAttendance } from '../Model/Database/database.mjs'
 dotenv.config();
 
 export default (app) => {
@@ -30,7 +31,7 @@ app.post('/fingerprint/allowNewRegistration', async (req, res) => {
         // Extracts and checks for existing status
         const status = req.body.registrationStatus
         let existingStatus = await fingerPrintStatus.findOne()
-
+    
         if (existingStatus) {
             existingStatus.AllowRegistration = status;
             await existingStatus.save()
@@ -66,12 +67,13 @@ app.post('/FingerID::id', async (req, res) => {
     }
     
     if (studentFound) {
-        console.log(`Got fingerprint ID: ${id}, Attendance marked for ${studentFound.username}!`);
-        const responseObject = {
-            username: studentFound.username,
-            qalamId: studentFound.qalamId
-        };
+        // Mark the attendance for the student
+        if () {
+
+        }
+        await markAttendance(process.env.MYSQL_DATABASE,'P',splitFingerprintId[0]);
         res.json(responseObject); // Send a response back to Arduino
+
     } else {
         console.log(`No student found with fingerprint ID: ${id}`);
         res.status(404).send('No student found'); // Send a 404 status code

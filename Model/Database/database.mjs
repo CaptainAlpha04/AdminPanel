@@ -143,12 +143,11 @@ async function createTable() {
 
 // function to update attendance daily
 
-export async function markAttendance(databaseName,day,status,Qalam_Id){
+export async function markAttendance(databaseName, status, Qalam_Id) {
   try{
-
     // update the table after every attendance
     const updatedTable = `UPDATE ${databaseName}.daily_attendance 
-    SET Day_${day} = ${status}
+    SET Day_${new Date().getDate()} = ${status}
     WHERE Qalam_Id = ${Qalam_Id}`
 
     await pool.query(updatedTable)
