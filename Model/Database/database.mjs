@@ -167,12 +167,15 @@ export async function attendaceAlreadyMarked(database, QalamID) {
     const isPresent = `SELECT DAY_${new Date().getDate()} 
     FROM ${database}.daily_attendance 
     WHERE Qalam_Id = ${QalamID}`
-    const status = await pool.query(isPresent)
-    console.log(status)
-    // if (isPresent != '"P") {
-    //   return false
-    // } else 
-    // return true
+    const [rows] = await pool.query(isPresent)
+
+    if (rows[0][`DAY_${new Date().getDate()}`] === 'P') {
+      console.log("Attendance already marked")
+      return true;
+    } else {
+      return false;
+    }
+    
   } catch (err) {
     console.log(err)
   }

@@ -36,6 +36,9 @@ let newStudent = null;
         //Saves the student record
         await student.save()
         newStudent = student;
+
+        
+
         eventEmitter.once('fingerprintUpdated', () => {
             res.sendStatus(200); // Send a 200 status code
         });
