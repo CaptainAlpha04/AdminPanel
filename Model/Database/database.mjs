@@ -30,7 +30,6 @@ export async function getAllData() {
 }
 
 // Function to create data
-// Function to create data
 export async function createData(Qalam_Id, Student_Name, Month_Number, days) {
     // Convert the days object into an array of its values
     let daysArray = Object.values(days)
@@ -55,17 +54,6 @@ export async function deleteAllData() {
 export async function deleteData(id) {
   const [result] = await pool.query(`DELETE FROM daily_attendance WHERE Qalam_Id = ?`, [id])
   return getAllData()
-}
-
-// Main function
-async function main() {
-  try {
-    const id = 1 // Specify the id here
-    const attendance = await getData(id)
-    console.log(attendance)
-  } catch (error) {
-    console.error('Error:', error)
-  }
 }
 
 // Function to check and create database if not exists
@@ -100,46 +88,59 @@ async function checkIfTableExists(databaseName) {
 
 // Function to create a table
 async function createTable() {
-  const createTableQuery = `CREATE TABLE daily_attendance (
-    Qalam_Id INT PRIMARY KEY,
-    Student_Name VARCHAR(60),
-    Month_Number INT,
-    Day_1 VARCHAR(2),
-    Day_2 VARCHAR(2),
-    Day_3 VARCHAR(2),
-    Day_4 VARCHAR(2),
-    Day_5 VARCHAR(2),
-    Day_6 VARCHAR(2),
-    Day_7 VARCHAR(2),
-    Day_8 VARCHAR(2),
-    Day_9 VARCHAR(2),
-    Day_10 VARCHAR(2),
-    Day_11 VARCHAR(2),
-    Day_12 VARCHAR(2),
-    Day_13 VARCHAR(2),
-    Day_14 VARCHAR(2),
-    Day_15 VARCHAR(2),
-    Day_16 VARCHAR(2),
-    Day_17 VARCHAR(2),
-    Day_18 VARCHAR(2),
-    Day_19 VARCHAR(2),
-    Day_20 VARCHAR(2),
-    Day_21 VARCHAR(2),
-    Day_22 VARCHAR(2),
-    Day_23 VARCHAR(2),
-    Day_24 VARCHAR(2),
-    Day_25 VARCHAR(2),
-    Day_26 VARCHAR(2),
-    Day_27 VARCHAR(2),
-    Day_28 VARCHAR(2),
-    Day_29 VARCHAR(2),
-    Day_30 VARCHAR(2),
-    Day_31 VARCHAR(2)
-  )`;
+  try {
+    
+    // Create daily_attendance table
+    const createTableQuery = `
+      CREATE TABLE daily_attendance (
+        Qalam_Id INT PRIMARY KEY,
+        Student_Name VARCHAR(60),
+        FingerPrint_Id INT,
+        Hostel VARCHAR(60),
+        Degree VARCHAR(60),
+        Major VARCHAR(60),
+        Batch VARCHAR(60),
+        Month_Number INT,
+        Day_1 VARCHAR(2),
+        Day_2 VARCHAR(2),
+        Day_3 VARCHAR(2),
+        Day_4 VARCHAR(2),
+        Day_5 VARCHAR(2),
+        Day_6 VARCHAR(2),
+        Day_7 VARCHAR(2),
+        Day_8 VARCHAR(2),
+        Day_9 VARCHAR(2),
+        Day_10 VARCHAR(2),
+        Day_11 VARCHAR(2),
+        Day_12 VARCHAR(2),
+        Day_13 VARCHAR(2),
+        Day_14 VARCHAR(2),
+        Day_15 VARCHAR(2),
+        Day_16 VARCHAR(2),
+        Day_17 VARCHAR(2),
+        Day_18 VARCHAR(2),
+        Day_19 VARCHAR(2),
+        Day_20 VARCHAR(2),
+        Day_21 VARCHAR(2),
+        Day_22 VARCHAR(2),
+        Day_23 VARCHAR(2),
+        Day_24 VARCHAR(2),
+        Day_25 VARCHAR(2),
+        Day_26 VARCHAR(2),
+        Day_27 VARCHAR(2),
+        Day_28 VARCHAR(2),
+        Day_29 VARCHAR(2),
+        Day_30 VARCHAR(2),
+        Day_31 VARCHAR(2)
+      )
+    `;
+    await pool.query(createTableQuery);
 
-  await pool.query(createTableQuery)
+    console.log('Tables created successfully');
+  } catch (error) {
+    console.error('Error creating tables:', error);
+  }
 }
-
 
 // function to update attendance daily
 
@@ -159,4 +160,23 @@ export async function markAttendance(databaseName, status, Qalam_Id) {
     console.error('Error:', error)
   }
 
+}
+
+export async function attendaceAlreadyMarked(database, QalamID) {
+  try {
+    const isPresent = `SELECT DAY_${new Date().getDate()} 
+    FROM ${database}.daily_attendance 
+    WHERE Qalam_Id = ${QalamID}`
+    const [rows] = await pool.query(isPresent)
+
+    if (rows[0][`DAY_${new Date().getDate()}`] === 'P') {
+      console.log("Attendance already marked")
+      return true;
+    } else {
+      return false;
+    }
+    
+  } catch (err) {
+    console.log(err)
+  }
 }
