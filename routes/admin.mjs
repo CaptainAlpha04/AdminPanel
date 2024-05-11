@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken'
 import Admin from '../schema/adminSchema.mjs'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import nodemailer from 'nodemailer'
+import dotenv from 'dotenv'
 
+// Load environment variables from .env file
+dotenv.config()
 // exporting module
 export default (app) => {
 
@@ -34,10 +38,10 @@ async function getAdminData(res) {
 async function CreateUserAdmin() {
     const admin = await Admin.create({
         username: "admin",
-        password: (await bcrypt.hash("pass", 10)).toString()
+        password: (await bcrypt.hash("pass", 10)).toString(),
+        email: "aliimran.iam59@gmail.com"
     })
 }
-
 /* Middlewares for parsing data and CORS */
 
 // Middleware for CORS
@@ -48,6 +52,35 @@ app.use(cors({
 
 app.use(cookieParser()) // Cookie parser middleware
 app.use(express.json()) // Parse JSON bodies
+
+/* Node Mailer Middleware and functions for reset Password Routes */
+
+// Transporter function for nodemailer authentication
+const transporter = nodemailer.createTransport({
+    service: "Gmail", // "gmail
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // Use `true` for port 465, `false` for all other ports
+    auth: {
+      user: process.env.NODEMAILERUSER,
+      pass: process.env.NODEMAILERPASS,
+    },
+  })
+
+// Function to send OTP to the user's email
+
+async function sendOTP(userEmail, otp) {
+    // send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: `"Team Persona" <{${process.env.NODEMAILERUSER}}>`, // sender address
+      to: `${userEmail}, ${userEmail}`, // list of receivers
+      subject: "OTP Request for Password Reset", // Subject line
+      text: `The OTP for your password reset is ${otp}`, // plain text body
+    })
+  
+    console.log("Message sent: %s", info.messageId)
+    // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
+  }
 
 /* Middlewares for Authenticating and Authorizing the users */
 
@@ -141,13 +174,14 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
-
-app.get('/', (req, res) => {
+// Test route to create default admin user  
+app.get('/admin/createAdmin', async (req, res) => {
     try {
-        CreateUserAdmin()
-        console.log("done")
+        await CreateUserAdmin()
+        res.send({response: "Admin Created"})
     } catch (error) {
-        
+        console.log(error)
+        res.send({response: "Error Creating Admin"})
     }
 })
 /* Routes related to Admin User */
@@ -206,6 +240,66 @@ TokenAuthorization, userAuthentication, modifyCredentials, async (req, res) => {
     // Final Success Code
     console.log("Password updated successfully")
     res.sendStatus(200)
+})
+
+// Routes to handle password reset
+
+// OTP Request flag
+let enableOtpRequest = false
+
+// OTP variable
+let otp = 0
+// Initial route to handle password reset request
+app.post('/admin/forgetPassword', async (req, res) => {
+    // Retrieve the user's email address from the request body
+    const { email } = req.body;
+    // Find the user by email address
+    const user = await Admin.findOne({ email });
+    if(user) {
+        res.sendStatus(200)
+        enableOtpRequest = true;
+        otp = Math.floor(1000 + Math.random() * 9000)
+        console.log(otp)
+        sendOTP(email, otp).catch(console.error);
+    } else {    
+        res.sendStatus(401)
+    }
+})
+
+// OTP Verification flag
+let otpVerified = false
+// Route to handle OTP verification
+app.post('/admin/forgetPassword/otp', async (req, res) => {
+    if(enableOtpRequest) {
+        const { otpRequest } = req.body;
+        if(otpRequest == otp) {
+            res.sendStatus(200)
+            console.log("OTP Verified")
+            otpVerified = true
+        } else {
+            res.sendStatus(401)
+            console.log('OTP Verification Failed')
+            otpVerified = false
+        }
+    }
+})
+
+// Route to handle password reset
+app.post('/admin/forgetPassword/reset', async (req, res) => {
+    if(otpVerified) {
+        const { newPassword } = req.body;
+        if(newPassword) {
+            const user = await Admin.findOne()
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+            user.password = hashedPassword
+            await user.save()
+            res.sendStatus(200)
+            console.log("Password Reset Successful")
+        } else {
+            res.sendStatus(401)
+            console.log("Password Reset Failed")
+        }
+    }
 })
 
 }
