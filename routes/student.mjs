@@ -38,7 +38,8 @@ let newStudent = null;
         await student.save()
         newStudent = student;
         await createData(qalamId, username, department, new Date().getMonth());     
-        console.log('Hi')
+        
+        // Once the student has been added, emit the fingerprintUpdated event
         eventEmitter.once('fingerprintUpdated', () => {
             res.sendStatus(200); // Send a 200 status code
         });
