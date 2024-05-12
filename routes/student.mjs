@@ -20,6 +20,7 @@ async function checkIfStudentExists(req, res, next) {
     return
 }
 
+// New Student variable flag
 let newStudent = null;
 /* Routes related to students */
     app.post('/student/addNewStudent', checkIfStudentExists, async (req, res) => {

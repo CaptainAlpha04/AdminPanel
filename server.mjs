@@ -7,6 +7,7 @@ import AdminRoute from './routes/admin.mjs'
 import fingerprintManager from './routes/fingerprintManager.mjs'
 import sqlModel from './Model/sqlModel.mjs'
 import student from './routes/student.mjs'
+import api from './routes/api.mjs'
 
 // Importing necessary modules
 import { createConnection } from 'mysql2'
