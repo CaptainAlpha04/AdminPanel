@@ -42,7 +42,7 @@ let newStudent = null;
         console.log('Student Saved')
         // Once the student has been added, emit the fingerprintUpdated event
         eventEmitter.once('fingerprintUpdated', () => {
-            res.sendStatus(200); // Send a 200 status code
+            res.status(200); // Send a 200 status code
         });
 })
 
@@ -72,4 +72,13 @@ app.post('/fingerprint/checkForNewStudent', async (req, res) => {
     }
 })
 
+app.get('/student/getAllStudents', async (req, res) => {
+    const students = await Student.find()
+    res.send(students)
+})
+
+app.get('/student/getStudent/:qalamId', async (req, res) => {
+    const student  = await Student.findOne({qalamId: req.params.qalamId})
+    res.send(student)
+})
 }
