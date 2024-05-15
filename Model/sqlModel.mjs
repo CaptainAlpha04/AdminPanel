@@ -1,6 +1,8 @@
 import { createData, getData, getAllData, deleteData, deleteAllData, checkAndCreateDatabase, markAttendance } from './Database/database.mjs'
 import { createConnection } from 'mysql2'
 import express from 'express'
+import student from '../schema/studentSchema.mjs'
+import Student from '../schema/studentSchema.mjs'
 
 export default (app) => {
     
@@ -73,6 +75,7 @@ app.post("/daily_attendance/:Qalam_Id/:day/:status",async (req,res) =>{
     app.delete('/daily_attendance/:Qalam_Id',async (req, res) => {
         const id = req.params.Qalam_Id
         const attendance = await deleteData(id)
+        const row = StudentSchema.deleteOne({qalamId: req.params.Qalam_Id})
         res.send(attendance)
     })
     
@@ -81,6 +84,7 @@ app.post("/daily_attendance/:Qalam_Id/:day/:status",async (req,res) =>{
      */
     app.delete('/daily_attendance',async (req , res) => {
         const attendance = await deleteAllData()
+        const row = StudentSchema.deleteMany()
         res.send(attendance)
     })
 }
