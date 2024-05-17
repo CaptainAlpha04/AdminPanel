@@ -232,7 +232,7 @@ app.post('/admin/verifyKey', async (req, res) => {
     // Check if the special key matches the environment variable
     if(specialKey === process.env.SPECIAL_KEY) {
         keyVerified = true;
-        res.sendStatus(200)
+        res.sendStatus(200) 
         console.log("Key Verified")
     } else {
         res.sendStatus(401)
