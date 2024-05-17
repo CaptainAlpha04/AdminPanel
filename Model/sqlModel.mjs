@@ -3,6 +3,7 @@ import { createConnection } from 'mysql2'
 import express from 'express'
 import student from '../schema/studentSchema.mjs'
 
+
 export default (app) => {
     
     /* Middlewares */
@@ -88,4 +89,8 @@ app.post("/daily_attendance/:Qalam_Id/:day/:status",async (req,res) =>{
         res.send(attendance)
         console.log("Data deleted successfully")    
     })
+
+    /**
+     * Route to 
+     */
 }
