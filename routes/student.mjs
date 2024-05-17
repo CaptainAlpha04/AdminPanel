@@ -80,6 +80,21 @@ app.get('/student/getAllStudents', async (req, res) => {
 
 app.get('/student/getStudent/:qalamId', async (req, res) => {
     const student  = await Student.findOne({qalamId: req.params.qalamId})
-    res.send([student])
+    console.log(student)
+    if(student) {
+        res.send([student]).status(200)
+    } 
+    else res.sendStatus(404)
 })
+
+app.post('/student/filterStudents', async (req, res) => {
+    const {hostel, degree, batch, Department} = req.body
+    const students = await Student.find({school: Department, department: degree, hostel: hostel})
+    if (students) {
+        res.send([students]).status(200)
+    } else {
+        res.sendStatus(404)
+    }  
+})
+
 }
