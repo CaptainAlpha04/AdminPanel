@@ -36,7 +36,7 @@ const PORT = process.env.PORT || 5000
 mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true')
     .then(() => console.log('Connected to MongoDB'))
     .catch(error => console.log(error))
-
+    
    // Create a MySQL connection using the connection details from the environment variables
    const connection = createConnection({
      host: process.env.MYSQL_HOST,
