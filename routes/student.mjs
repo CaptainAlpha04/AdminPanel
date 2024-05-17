@@ -79,6 +79,6 @@ app.get('/student/getAllStudents', async (req, res) => {
 
 app.get('/student/getStudent/:qalamId', async (req, res) => {
     const student  = await Student.findOne({qalamId: req.params.qalamId})
-    res.send([student])
+    res.send(student)
 })
 }
