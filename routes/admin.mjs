@@ -39,7 +39,7 @@ async function CreateUserAdmin() {
     const admin = await Admin.create({
         username: "admin",
         password: (await bcrypt.hash("pass", 10)).toString(),
-        email: "aliimran.iam59@gmail.com"
+        email: "sfahmed.bscs23seecs@seecs.edu.pk"
     })
 }
 /* Middlewares for parsing data and CORS */
