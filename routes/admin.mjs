@@ -35,12 +35,13 @@ async function getAdminData(res) {
 }
 
 // Creates a new Admin using admin schema !!experimental
-async function CreateUserAdmin() {
+async function CreateUserAdmin(username, password, email) {
     const admin = await Admin.create({
-        username: "admin",
-        password: (await bcrypt.hash("pass", 10)).toString(),
-        email: "sfahmed.bscs23seecs@seecs.edu.pk"
+        username: `${username}`,
+        password: (await bcrypt.hash(`${password}`, 10)).toString(),
+        email: `${email}`
     })
+    return
 }
 /* Middlewares for parsing data and CORS */
 
@@ -174,16 +175,6 @@ async function modifyCredentials(req, res, next) {
     }
 }
 
-// Test route to create default admin user  
-app.get('/admin/createAdmin', async (req, res) => {
-    try {
-        await CreateUserAdmin()
-        res.send({response: "Admin Created"})
-    } catch (error) {
-        console.log(error)
-        res.send({response: "Error Creating Admin"})
-    }
-})
 /* Routes related to Admin User */
 
 // Admin Verification Route, checks for Token Authorization and responds
@@ -232,6 +223,45 @@ app.post('/admin/logout', async (req, res) => {
     // Optionally, send a response indicating successful logout
     res.sendStatus(200)
 })
+// Flag for key verification
+let keyVerified = false;
+
+// Route to check the special key
+app.post('/admin/verifyKey', async (req, res) => {
+    const { specialKey } = req.body;
+    // Check if the special key matches the environment variable
+    if(specialKey === process.env.SPECIAL_KEY) {
+        keyVerified = true;
+        res.sendStatus(200)
+        console.log("Key Verified")
+    } else {
+        res.sendStatus(401)
+        console.log("Key Verification Failed")
+    }
+})
+
+// Route to Handle Admin Account Creation  
+app.post('/admin/createAccount', async (req, res) => {
+
+    const {username, password, email} = req.body;
+    try {
+        if(keyVerified) {
+            const userExists = await Admin.findOne({username})
+            if (!userExists) {
+                await CreateUserAdmin(username, password, email)
+                res.sendStatus(201)
+                console.log("Admin Created Successfully")
+            } else {
+                res.sendStatus(409)
+                console.log("Admin Already Exists")
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        res.send({response: "Error Creating Admin"}).status(500)
+}
+})
+
 
 // Route to handle password change
 app.post('/admin/security/changeCredentials', // Break line for code clarity
