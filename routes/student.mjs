@@ -1,11 +1,25 @@
 import Student from '../schema/studentSchema.mjs'
 import { createData } from '../Model/Database/database.mjs';
 import {EventEmitter} from 'events'
+import bodyParser from 'body-parser'
+import path from 'path'
+import multer from 'multer'
 
 const eventEmitter = new EventEmitter();
 /* Exporting the Package to server */
 export default (app) => {
 
+// Increase the limit to a larger size, e.g., 50mb
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+// Set up storage engine with Multer
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage, limits: {
+    fileSize: 1024 * 1024 * 50 // 50mb
+} 
+})
+
+app.use(upload.any())
 /* Middlewares related to students */
 
 async function checkIfStudentExists(req, res, next) {
@@ -23,9 +37,14 @@ async function checkIfStudentExists(req, res, next) {
 // New Student variable flag
 let newStudent = null;
 /* Routes related to students */
-    app.post('/student/addNewStudent', checkIfStudentExists, async (req, res) => {
+    app.post('/student/addNewStudent', upload.single('image'), checkIfStudentExists, async (req, res) => {
     // Parsing request body
-        const {username, CNIC, phoneNumber, school, department, qalamId} = await req.body
+        const {username, CNIC, phoneNumber, school, department, qalamId, hostelName, roomNumber} = await req.body
+        // Image object
+        const img = {
+            data: req.file.buffer,
+            contentType: req.file.mimetype,
+          }
         // Add the student to the database
         const student = new Student({
             username,
@@ -33,8 +52,12 @@ let newStudent = null;
             phoneNumber,
             school,
             department,
-            qalamId
+            qalamId, 
+            hostelName, 
+            roomNumber, 
+            image: img
         })
+
         //Saves the student record
         await student.save()
         newStudent = student;
@@ -87,13 +110,11 @@ app.get('/student/getStudent/:qalamId', async (req, res) => {
 })
 
 app.post('/student/filterStudents', async (req, res) => {
-    const {hostel, degree, batch, Department} = req.body
-    const students = await Student.find({school: Department, department: degree, hostel: hostel})
-    if (students) {
-        res.send([students]).status(200)
-    } else {
-        res.sendStatus(404)
-    }  
+    let students = []
+    let {hostel, degree, department} = req.body
+
+    students  = await Student.find({hostelName: hostel})
+    res.send(students)
 })
 
 }

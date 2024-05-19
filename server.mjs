@@ -2,8 +2,6 @@ import dotenv from 'dotenv'
 import express from 'express'
 import mongoose from 'mongoose'
 import Student from './schema/studentSchema.mjs'
-import path from 'path'
-import multer from 'multer'
 
 // Import routes
 import AdminRoute from './routes/admin.mjs'
@@ -32,6 +30,7 @@ AdminRoute(app)
 fingerprintManager(app)
 sqlModel(app)
 student(app)
+api(app)
 // Set the port to listen on, fallback to 5000 if not specified in the environment
 const PORT = process.env.PORT || 5000
 
@@ -46,68 +45,20 @@ mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true')
      user: process.env.MYSQL_USER,
      password: process.env.MYSQL_PASSWORD,
    })
-
-   // Set up storage engine with Multer
-const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
-
-// Serve the frontend
-app.use(express.static(path.join('', '')))
-
-// Route to upload an image and student data
-app.post('/upload', upload.single('image'), async (req, res) => {
-  try {
-    const {
-      username, school, department, qalamId, hostelName,
-      roomNumber, phoneNumber, fingerprint_Id, absentDays,
-      presentDays, totalDays, CNIC, email, password, guardian
-    } = req.body
-
-    const img = {
-      data: req.file.buffer,
-      contentType: req.file.mimetype,
-    }
-
-    const student = new Student({
-      username,
-      school,
-      department,
-      qalamId,
-      hostelName,
-      roomNumber,
-      phoneNumber,
-      fingerprint_Id,
-      absentDays,
-      presentDays,
-      totalDays,
-      CNIC,
-      email,
-      password,
-      guardian,
-      image: img,
-    })
-
-    await student.save()
-    res.status(201).send('Student and image uploaded successfully')
-  } catch (error) {
-    res.status(500).send('Error uploading student data: ' + error.message)
-  }
-})
-   
    // Connect to the MySQL server
-   connection.connect((err) => {
-     if (err) {
-       console.error('Error connecting to MySQL:', err)
-       return
-     }
-     console.log('Connected to MySQL')
-   })
-   
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error connecting to MySQL:', err)
+      return
+    }
+    console.log('Connected to MySQL')
+  })
+  
    // Handle any errors that occur during the connection
-   connection.on('error', (err) => {
-     console.error('MySQL error:', err)
-   })
-   
+  connection.on('error', (err) => {
+    console.error('MySQL error:', err)
+  })
+  
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}...`);
