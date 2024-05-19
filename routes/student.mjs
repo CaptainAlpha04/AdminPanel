@@ -75,11 +75,12 @@ app.post('/fingerprint/checkForNewStudent', async (req, res) => {
     // If a new student object exists, respond with the student's fingerprintID
     
     if (newStudent) {
-        console.log(newStudent.username)
+        //console.log(newStudent.username)
         res.sendStatus(200);
-        console.log(`New Student ${newStudent.username} enrolled in the System`)
         const fingerprint_Id = req.body.id;
-        console.log(fingerprint_Id)
+        console.log(`New Student ${newStudent.username} with fingerprint ID ${fingerprint_Id} enrolled in the System`)
+        
+        //console.log(fingerprint_Id)
         const student = await Student.findOne({qalamId: newStudent.qalamId})
         if (student) {
             student.fingerprint_Id = student.qalamId + "." + fingerprint_Id;
