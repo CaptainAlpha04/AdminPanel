@@ -1,6 +1,29 @@
 import Complaints from '../schema/complaints.mjs'
 import Queries from '../schema/queries.mjs'
 import Mess from '../schema/messSchema.mjs'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import dotenv from 'dotenv';
+
+dotenv.config()
+
+const genAI = new GoogleGenerativeAI(process.env.API_KEY)
+
+async function GenerateQuote() {
+    // For text-only input, use the gemini-pro model
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+  
+    const prompt = `
+    Generate a new random lesser know and motivational and inspiring quote with the format of 
+    Quote~Author
+    `
+  
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text
+  }
+  
+  
 
 export default (app) => {
 
@@ -107,4 +130,10 @@ export default (app) => {
         }
     })
 
+    app.get('/api/generateQuote', async(req, res) => {
+        const generateContent = await GenerateQuote()
+        const quote = generateContent.split('~')[0]
+        const author = generateContent.split('~')[1]
+        res.send({quote, author}).status(200)
+    })
 }
