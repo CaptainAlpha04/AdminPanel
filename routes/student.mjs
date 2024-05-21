@@ -68,7 +68,7 @@ let newStudent = null;
             res.status(200); // Send a 200 status code
         });
 })
-
+    
 // Checks if a new student object has been submitted
 app.post('/fingerprint/checkForNewStudent', async (req, res) => {
     //const status =  await checkRegistrationStatus(req, res); 

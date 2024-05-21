@@ -42,12 +42,27 @@ export default (app) => {
 
     app.get('/complaints/getAllComplaints', async (req, res) => {
         try {
-            const complaints = await Complaints.find({})
+            const complaints = await Complaints.find({resolved: false})
             res.send(complaints).status(200)
 
         } catch (error) {
             res.sendStatus(400)
             console.log(error)
+        }
+    })
+
+    app.post('/complaints/resolveComplaint/', async (req, res) => {
+        try {
+            const {title} = req.body
+            const complaint = await Complaints.findOne({title: title})
+            if(complaint) {
+                complaint.resolved = true
+                complaint.save()
+                res.sendStatus(200)
+            }
+
+        } catch (error) {
+            
         }
     })
 
@@ -65,12 +80,30 @@ export default (app) => {
 
     app.get('/queries/getAllQueries', async (req, res) => {
         try {
-            const queries = await Queries.find({})
+            const queries = await Queries.find({
+                response: {$exists: false}
+            })
             res.send(queries).status(200)
 
         } catch (error) {
             res.sendStatus(400)
             console.log(error)
+        }
+    })
+
+    app.post('/queries/queryRespond', async (req, res) => {
+        try {
+            const {title, queryResponse} = req.body
+            const query = await Queries.findOne({title: title})
+            if(query) {
+                query.response = queryResponse
+                query.save()
+                res.sendStatus(200)
+            }
+
+        } catch (error) {
+            console.log(error)
+            res.send(400)
         }
     })
 
