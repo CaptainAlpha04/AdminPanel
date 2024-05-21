@@ -34,12 +34,13 @@ const studentSchema = new mongoose.Schema({
     },
 
     image: {
-        data: Buffer,
-        contentType: String
+        type: String
     }
 
 });
 
 const Student = new mongoose.model('Student', studentSchema)
+
+
 
 export default Student
