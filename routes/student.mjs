@@ -3,23 +3,14 @@ import { createData } from '../Model/Database/database.mjs';
 import {EventEmitter} from 'events'
 import bodyParser from 'body-parser'
 import path from 'path'
-import multer from 'multer'
+import cors from 'cors'
+
 
 const eventEmitter = new EventEmitter();
 /* Exporting the Package to server */
 export default (app) => {
 
-// Increae the limit to a larger size, e.g., 50mb
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-// Set up storage engine with Multer
-const storage = multer.memoryStorage()
-const upload = multer({ storage: storage, limits: {
-    fileSize: 1024 * 1024 * 50 // 50mb
-} 
-})
-
-app.use(upload.any())
+app.use(cors())
 /* Middlewares related to students */
 
 async function checkIfStudentExists(req, res, next) {
@@ -39,12 +30,8 @@ let newStudent = null;
 /* Routes related to students */
     app.post('/student/addNewStudent', upload.single('image'), checkIfStudentExists, async (req, res) => {
     // Parsing request body
-        const {username, CNIC, phoneNumber, school, department, qalamId, hostelName, roomNumber} = await req.body
-        // Image object
-        // const img = {
-        //     data: req.file.buffer,
-        //     contentType: req.file.mimetype,
-        //   }
+        const {username, CNIC, phoneNumber, school, department, qalamId, hostelName, roomNumber, image } = await req.body
+        
         // Add the student to the database
         const student = new Student({
             username,
@@ -54,8 +41,8 @@ let newStudent = null;
             department,
             qalamId, 
             hostelName, 
-            roomNumber, 
-            //image: img
+            roomNumber,
+            image
         })
 
         //Saves the student record
@@ -119,3 +106,6 @@ app.post('/student/filterStudents', async (req, res) => {
 })
 
 }
+
+// route to retrieve student image from the frontend
+app.get()
