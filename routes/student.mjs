@@ -9,7 +9,7 @@ const eventEmitter = new EventEmitter();
 /* Exporting the Package to server */
 export default (app) => {
 
-// Increase the limit to a larger size, e.g., 50mb
+// Increae the limit to a larger size, e.g., 50mb
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // Set up storage engine with Multer
@@ -41,10 +41,10 @@ let newStudent = null;
     // Parsing request body
         const {username, CNIC, phoneNumber, school, department, qalamId, hostelName, roomNumber} = await req.body
         // Image object
-        const img = {
-            data: req.file.buffer,
-            contentType: req.file.mimetype,
-          }
+        // const img = {
+        //     data: req.file.buffer,
+        //     contentType: req.file.mimetype,
+        //   }
         // Add the student to the database
         const student = new Student({
             username,
@@ -55,7 +55,7 @@ let newStudent = null;
             qalamId, 
             hostelName, 
             roomNumber, 
-            image: img
+            //image: img
         })
 
         //Saves the student record

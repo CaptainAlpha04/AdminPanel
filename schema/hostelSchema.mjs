@@ -18,10 +18,10 @@ const hostelSchema = new mongoose.Schema({
     },
     numberOfRooms: {
         type: Number,
-        required: trusted
+        required: true
     },
     totalStudents: {
-        typ: Number,
+        type: Number,
         required: true
     }
 })
