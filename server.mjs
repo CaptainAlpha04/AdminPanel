@@ -23,7 +23,7 @@ checkAndCreateDatabase().then(() => {
 // Initialize Express app
 const app = express()
 // Use express.json middleware to parse JSON request bodies
-app.use(express.json(limit, "10mb")) 
+app.use(express.json({limit: "10mb"})) 
 
 // Use the routes
 AdminRoute(app)

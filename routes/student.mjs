@@ -28,7 +28,7 @@ async function checkIfStudentExists(req, res, next) {
 // New Student variable flag
 let newStudent = null;
 /* Routes related to students */
-    app.post('/student/addNewStudent', upload.single('image'), checkIfStudentExists, async (req, res) => {
+    app.post('/student/addNewStudent', checkIfStudentExists, async (req, res) => {
     // Parsing request body
         const {username, CNIC, phoneNumber, school, department, qalamId, hostelName, roomNumber, image } = await req.body
         
@@ -107,5 +107,3 @@ app.post('/student/filterStudents', async (req, res) => {
 
 }
 
-// route to retrieve student image from the frontend
-app.get()
